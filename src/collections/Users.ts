@@ -1,13 +1,58 @@
 import type { CollectionConfig } from 'payload'
+import { isSuperadminOrAbove, usersReadAccess, usersUpdateAccess } from '@/access'
 
 export const Users: CollectionConfig = {
   slug: 'users',
   admin: {
     useAsTitle: 'email',
+    defaultColumns: ['email', 'firstName', 'lastName', 'role', 'tenant'],
   },
   auth: true,
+  access: {
+    create: isSuperadminOrAbove,
+    read: usersReadAccess,
+    update: usersUpdateAccess,
+    delete: isSuperadminOrAbove,
+  },
   fields: [
-    // Email added by default
-    // Add more fields as needed
+    {
+      name: 'firstName',
+      type: 'text',
+      required: true,
+    },
+    {
+      name: 'lastName',
+      type: 'text',
+      required: true,
+    },
+    {
+      name: 'role',
+      type: 'select',
+      required: true,
+      defaultValue: 'member',
+      saveToJWT: true,
+      options: [
+        { label: 'Master', value: 'master' },
+        { label: 'Superadmin', value: 'superadmin' },
+        { label: 'Club Admin', value: 'club-admin' },
+        { label: 'Member', value: 'member' },
+      ],
+      access: {
+        update: ({ req }) => {
+          const user = req.user as { role?: string } | null
+          return ['master', 'superadmin'].includes(user?.role ?? '')
+        },
+      },
+    },
+    {
+      name: 'tenant',
+      type: 'relationship',
+      relationTo: 'tenants',
+      saveToJWT: true,
+      index: true,
+      admin: {
+        condition: (data) => ['club-admin', 'member'].includes(data?.role ?? ''),
+      },
+    },
   ],
 }
