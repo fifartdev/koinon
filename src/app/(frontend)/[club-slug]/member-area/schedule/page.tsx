@@ -18,6 +18,16 @@ const DAY_ORDER = [
   'Sunday',
 ]
 
+const DAY_GREEK: Record<string, string> = {
+  Monday: 'Δευτέρα',
+  Tuesday: 'Τρίτη',
+  Wednesday: 'Τετάρτη',
+  Thursday: 'Πέμπτη',
+  Friday: 'Παρασκευή',
+  Saturday: 'Σάββατο',
+  Sunday: 'Κυριακή',
+}
+
 export default async function SchedulePage({ params }: Props) {
   const headers = await getHeaders()
   const payload = await getPayload({ config })
@@ -51,19 +61,19 @@ export default async function SchedulePage({ params }: Props) {
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-slate-800 mb-5">My Schedule</h1>
+      <h1 className="text-xl font-bold text-slate-800 mb-5">Το Πρόγραμμά μου</h1>
 
       {days.length === 0 ? (
         <div className="text-center py-16 text-slate-400">
-          <p>No schedule yet.</p>
-          <p className="text-sm mt-1">Enroll in services to see your weekly schedule here.</p>
+          <p>Δεν υπάρχει πρόγραμμα ακόμα.</p>
+          <p className="text-sm mt-1">Εγγραφείτε σε υπηρεσίες για να δείτε το εβδομαδιαίο πρόγραμμά σας εδώ.</p>
         </div>
       ) : (
         <div className="space-y-6">
           {days.map((day) => (
             <div key={day}>
               <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                {day}
+                {DAY_GREEK[day] ?? day}
               </h2>
               <div className="space-y-2">
                 {byDay[day].map((slot, i) => (

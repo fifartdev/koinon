@@ -45,6 +45,21 @@ export const Users: CollectionConfig = {
       },
     },
     {
+      name: 'landline',
+      type: 'text',
+      admin: { description: 'Σταθερό τηλέφωνο' },
+    },
+    {
+      name: 'mobile',
+      type: 'text',
+      admin: { description: 'Κινητό τηλέφωνο' },
+    },
+    {
+      name: 'homeAddress',
+      type: 'text',
+      admin: { description: 'Διεύθυνση κατοικίας' },
+    },
+    {
       name: 'tenant',
       type: 'relationship',
       relationTo: 'tenants',

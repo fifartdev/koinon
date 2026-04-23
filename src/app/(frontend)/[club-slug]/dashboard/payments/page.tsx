@@ -29,21 +29,21 @@ export default async function PaymentsPage({ params }: Props) {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-slate-800 mb-6">Payments</h2>
+      <h2 className="text-xl font-bold text-slate-800 mb-6">Πληρωμές</h2>
 
       {enrollments.length === 0 ? (
         <div className="text-center py-16 text-slate-400">
-          No enrollments yet.
+          Δεν υπάρχουν εγγραφές ακόμα.
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50">
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Member</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Service</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Status</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Enrolled</th>
+                <th className="text-left px-5 py-3 font-semibold text-slate-500">Μέλος</th>
+                <th className="text-left px-5 py-3 font-semibold text-slate-500">Υπηρεσία</th>
+                <th className="text-left px-5 py-3 font-semibold text-slate-500">Κατάσταση</th>
+                <th className="text-left px-5 py-3 font-semibold text-slate-500">Εγγραφή</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -68,7 +68,7 @@ export default async function PaymentsPage({ params }: Props) {
                             : 'bg-red-50 text-red-600'
                         }`}
                       >
-                        {e.paymentStatus === 'paid' ? '✓ Paid' : '✗ Unpaid'}
+                        {e.paymentStatus === 'paid' ? '✓ Εξοφλήθη' : '✗ Ανεξόφλητο'}
                       </span>
                     </td>
                     <td className="px-5 py-3 text-slate-400 text-xs">

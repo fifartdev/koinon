@@ -40,20 +40,27 @@ export async function POST(request: Request) {
 
   // Create the user in Payload (they'll receive a password reset email via Resend)
   const randomPassword = Math.random().toString(36).slice(-12)
-  const newUser = await payload.create({
-    collection: 'users',
-    data: {
-      email: body.email,
-      firstName: body.firstName,
-      lastName: body.lastName,
-      role: 'member',
-      tenant: tenantId,
-      password: randomPassword,
-    },
-  })
+  let newUser: { id: string | number }
+  try {
+    newUser = await payload.create({
+      collection: 'users',
+      data: {
+        email: body.email,
+        firstName: body.firstName,
+        lastName: body.lastName,
+        role: 'member',
+        tenant: Number(tenantId),
+        password: randomPassword,
+      },
+    })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Σφάλμα δημιουργίας χρήστη'
+    return Response.json({ message }, { status: 422 })
+  }
 
   // Generate a password reset token so the invitee sets their own password
-  const { token } = await payload.forgotPassword({
+  // forgotPassword returns the token string directly in Payload 3.x
+  const token = await payload.forgotPassword({
     collection: 'users',
     data: { email: body.email },
     disableEmail: true,

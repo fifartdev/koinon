@@ -38,14 +38,14 @@ export default async function DashboardPage({ params }: Props) {
     ])
 
   const stats = [
-    { label: 'Members', value: memberCount, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-    { label: 'Active Services', value: serviceCount, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { label: 'Unpaid Fees', value: unpaidCount, color: 'text-red-600', bg: 'bg-red-50' },
+    { label: 'Μέλη', value: memberCount, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+    { label: 'Ενεργές Υπηρεσίες', value: serviceCount, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { label: 'Ανεξόφλητες Οφειλές', value: unpaidCount, color: 'text-red-600', bg: 'bg-red-50' },
   ]
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-slate-800 mb-6">Overview</h2>
+      <h2 className="text-xl font-bold text-slate-800 mb-6">Επισκόπηση</h2>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {stats.map((s) => (
           <div key={s.label} className={`${s.bg} rounded-2xl p-5`}>

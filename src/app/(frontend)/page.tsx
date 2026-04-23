@@ -80,76 +80,76 @@ function IconCheck() {
 const FEATURES = [
   {
     icon: <IconTenant />,
-    label: 'Multi-tenancy',
-    title: 'One space per club',
-    desc: 'Every club gets its own isolated environment at /{slug}. Zero data bleed between tenants.',
+    label: 'Πολυ-ενοικίαση',
+    title: 'Ένας χώρος ανά σύλλογο',
+    desc: 'Κάθε σύλλογος έχει το δικό του απομονωμένο περιβάλλον στο /{slug}. Μηδενική ανάμειξη δεδομένων.',
   },
   {
     icon: <IconMembers />,
-    label: 'Members',
-    title: 'Invite-only membership',
-    desc: 'Admins invite members by email. No public sign-ups, no noise — just your people.',
+    label: 'Μέλη',
+    title: 'Μόνο κατόπιν πρόσκλησης',
+    desc: 'Οι διαχειριστές προσκαλούν μέλη μέσω email. Χωρίς δημόσιες εγγραφές — μόνο οι δικοί σας άνθρωποι.',
   },
   {
     icon: <IconCalendar />,
-    label: 'Scheduling',
-    title: 'Weekly class schedules',
-    desc: 'Define services with tutor, day, time, and location. Members see their personal schedule.',
+    label: 'Χρονοδιάγραμμα',
+    title: 'Εβδομαδιαία προγράμματα',
+    desc: 'Ορίστε υπηρεσίες με εκπαιδευτή, ημέρα, ώρα και τοποθεσία. Τα μέλη βλέπουν το προσωπικό τους πρόγραμμα.',
   },
   {
     icon: <IconPayment />,
-    label: 'Payments',
-    title: 'Simple payment tracking',
-    desc: 'Mark fees as Paid or Unpaid in one click. Automatic email reminders on status change.',
+    label: 'Πληρωμές',
+    title: 'Απλή παρακολούθηση πληρωμών',
+    desc: 'Σημειώστε τέλη ως Εξοφλημένα ή Ανεξόφλητα με ένα κλικ. Αυτόματες υπενθυμίσεις email.',
   },
   {
     icon: <IconMegaphone />,
-    label: 'Announcements',
-    title: 'Rich text announcements',
-    desc: 'Draft, publish, and pin posts. Every publish auto-notifies all club members.',
+    label: 'Ανακοινώσεις',
+    title: 'Ανακοινώσεις πλούσιου κειμένου',
+    desc: 'Γράψτε, δημοσιεύστε και καρφιτσώστε αναρτήσεις. Κάθε δημοσίευση ειδοποιεί αυτόματα όλα τα μέλη.',
   },
   {
     icon: <IconPWA />,
     label: 'PWA',
-    title: 'Installable mobile app',
-    desc: '"Add to Home Screen" prompt after login. Feels native on iOS and Android.',
+    title: 'Εγκαταστάσιμη εφαρμογή',
+    desc: 'Προτροπή "Προσθήκη στην Αρχική" μετά τη σύνδεση. Φαίνεται native σε iOS και Android.',
   },
 ]
 
 const STEPS = [
   {
     n: '01',
-    title: 'Create your club',
-    desc: 'A superadmin provisions your tenant. You get a live URL at koinon.app/{your-club} in seconds.',
-    detail: 'Slug chosen. Done.',
+    title: 'Δημιουργήστε τον σύλλογό σας',
+    desc: 'Ένας superadmin δημιουργεί τον σύλλογό σας. Παίρνετε ζωντανό URL στο koinon.app/{your-club} σε δευτερόλεπτα.',
+    detail: 'Slug επιλεγμένο. Έτοιμο.',
   },
   {
     n: '02',
-    title: 'Invite your members',
-    desc: 'Paste an email, hit send. Members receive a branded invite link and set their own password.',
-    detail: 'No app download needed.',
+    title: 'Προσκαλέστε τα μέλη σας',
+    desc: 'Επικολλήστε ένα email, πατήστε αποστολή. Τα μέλη λαμβάνουν σύνδεσμο πρόσκλησης και ορίζουν τον κωδικό τους.',
+    detail: 'Χωρίς λήψη εφαρμογής.',
   },
   {
     n: '03',
-    title: 'Run everything',
-    desc: 'Services, schedules, payments, announcements — all from one clean dashboard your admins love.',
-    detail: 'Built for non-technical admins.',
+    title: 'Διαχειριστείτε τα πάντα',
+    desc: 'Υπηρεσίες, προγράμματα, πληρωμές, ανακοινώσεις — όλα από έναν καθαρό πίνακα ελέγχου.',
+    detail: 'Σχεδιασμένο για μη τεχνικούς διαχειριστές.',
   },
 ]
 
 const CLUB_TYPES = [
-  'Football Academy',
-  'Martial Arts Dojo',
-  'Dance Studio',
-  'Swimming Club',
-  'Tennis Academy',
+  'Ακαδημία Ποδοσφαίρου',
+  'Σχολή Πολεμικών Τεχνών',
+  'Σχολή Χορού',
+  'Ομάδα Κολύμβησης',
+  'Ακαδημία Τένις',
   'CrossFit Box',
-  'Yoga Studio',
-  'Chess Club',
-  'Basketball Academy',
-  'Gymnastics Club',
-  'Rugby Club',
-  'Archery Range',
+  'Σχολή Yoga',
+  'Σύλλογος Σκακιού',
+  'Ακαδημία Μπάσκετ',
+  'Σύλλογος Γυμναστικής',
+  'Σύλλογος Rugby',
+  'Σχολή Τοξοβολίας',
 ]
 
 /* ─── Dashboard Mockup ───────────────────────────────────── */
@@ -187,7 +187,7 @@ function DashboardMockup() {
               padding: '3px 0',
             }}
           >
-            golden-eagles · Dashboard
+            golden-eagles · Πίνακας Ελέγχου
           </div>
         </div>
 
@@ -195,9 +195,9 @@ function DashboardMockup() {
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-2">
             {[
-              { label: 'Members', value: '47', color: '#818cf8' },
-              { label: 'Services', value: '6', color: '#34d399' },
-              { label: 'Unpaid', value: '3', color: '#f87171' },
+              { label: 'Μέλη', value: '47', color: '#818cf8' },
+              { label: 'Υπηρεσίες', value: '6', color: '#34d399' },
+              { label: 'Ανεξόφλητα', value: '3', color: '#f87171' },
             ].map((s) => (
               <div
                 key={s.label}
@@ -220,12 +220,12 @@ function DashboardMockup() {
           {/* Notification items */}
           <div className="space-y-2">
             <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.3)' }}>
-              Recent Activity
+              Πρόσφατη Δραστηριότητα
             </p>
             {[
-              { dot: '#818cf8', text: 'Summer Training announced', time: '2m ago' },
-              { dot: '#f87171', text: 'Ahmed K. — payment due', time: '1h ago' },
-              { dot: '#34d399', text: 'New service: Pilates added', time: '3h ago' },
+              { dot: '#818cf8', text: 'Ανακοινώθηκε Καλοκαιρινό Τρένινγκ', time: 'πριν 2λ' },
+              { dot: '#f87171', text: 'Αχμεντ Κ. — εκκρεμεί πληρωμή', time: 'πριν 1ω' },
+              { dot: '#34d399', text: 'Νέα υπηρεσία: Προστέθηκε Pilates', time: 'πριν 3ω' },
             ].map((n, i) => (
               <div
                 key={i}
@@ -264,14 +264,14 @@ function DashboardMockup() {
                 Maria Konstantinou
               </p>
               <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                Enrolled · 2 services
+                Εγγεγραμμένη · 2 υπηρεσίες
               </p>
             </div>
             <span
               className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
               style={{ background: 'rgba(52,211,153,0.15)', color: '#34d399' }}
             >
-              Paid
+              Εξοφλήθη
             </span>
           </div>
         </div>
@@ -288,7 +288,7 @@ function DashboardMockup() {
         }}
       >
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-        Live · 12 online
+        Ζωντανά · 12 online
       </div>
     </div>
   )
@@ -298,7 +298,7 @@ function DashboardMockup() {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen" style={{ background: '#07070f' }}>
+    <div className="min-h-screen text-white" style={{ background: '#07070f' }}>
 
       {/* ── NAV ── */}
       <nav
@@ -330,9 +330,9 @@ export default function LandingPage() {
 
         {/* Links */}
         <div className="hidden md:flex items-center gap-7 text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
-          <a href="#features" className="hover:text-white transition-colors">Features</a>
-          <a href="#how" className="hover:text-white transition-colors">How it works</a>
-          <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+          <a href="#features" className="hover:text-white transition-colors">Λειτουργίες</a>
+          <a href="#how" className="hover:text-white transition-colors">Πώς λειτουργεί</a>
+          <a href="#pricing" className="hover:text-white transition-colors">Τιμολόγηση</a>
         </div>
 
         {/* CTAs */}
@@ -342,7 +342,7 @@ export default function LandingPage() {
             className="hidden md:block text-sm transition-colors"
             style={{ color: 'rgba(255,255,255,0.45)' }}
           >
-            Sign in
+            Σύνδεση
           </a>
           <a
             href="#contact"
@@ -353,7 +353,7 @@ export default function LandingPage() {
               boxShadow: '0 4px 20px rgba(99,102,241,0.35)',
             }}
           >
-            Request Access
+            Ζητήστε Πρόσβαση
           </a>
         </div>
       </nav>
@@ -394,7 +394,7 @@ export default function LandingPage() {
               }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-              Now in early access · Join 120+ clubs
+              Τώρα σε πρόωρη πρόσβαση · 120+ σύλλογοι
             </div>
 
             {/* Headline */}
@@ -402,9 +402,9 @@ export default function LandingPage() {
               className="animate-fade-up-2 text-5xl md:text-6xl lg:text-[68px] font-bold leading-[1.06] tracking-tight mb-6"
               style={{ fontFamily: 'var(--font-bricolage)' }}
             >
-              Stop managing clubs
+              Σταματήστε να διαχειρίζεστε
               <br />
-              <span className="text-gradient">with group chats.</span>
+              <span className="text-gradient">συλλόγους με ομαδικές συνομιλίες.</span>
             </h1>
 
             {/* Subtext */}
@@ -412,7 +412,7 @@ export default function LandingPage() {
               className="animate-fade-up-3 text-lg md:text-xl leading-relaxed mb-10 max-w-xl"
               style={{ color: 'rgba(255,255,255,0.5)' }}
             >
-              Koinon gives every club a private, branded space — member lists, weekly schedules, payment tracking, and instant announcements. Built for admins who just want it to work.
+              Το Koinon δίνει σε κάθε σύλλογο έναν ιδιωτικό χώρο — λίστες μελών, εβδομαδιαία προγράμματα, παρακολούθηση πληρωμών και άμεσες ανακοινώσεις. Φτιαγμένο για διαχειριστές που θέλουν να λειτουργεί.
             </p>
 
             {/* CTA row */}
@@ -426,7 +426,7 @@ export default function LandingPage() {
                   boxShadow: '0 8px 32px rgba(99,102,241,0.4)',
                 }}
               >
-                Get early access
+                Αποκτήστε πρόωρη πρόσβαση
                 <IconArrow />
               </a>
               <a
@@ -434,7 +434,7 @@ export default function LandingPage() {
                 className="inline-flex items-center gap-2 text-sm font-medium transition-colors"
                 style={{ color: 'rgba(255,255,255,0.45)' }}
               >
-                See how it works
+                Δείτε πώς λειτουργεί
                 <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                 </svg>
@@ -443,7 +443,7 @@ export default function LandingPage() {
 
             {/* Trust signals */}
             <div className="animate-fade-up-4 mt-10 flex items-center gap-6 flex-wrap">
-              {['No credit card required', 'Setup in 5 minutes', 'GDPR friendly'].map((t) => (
+              {['Χωρίς πιστωτική κάρτα', 'Εγκατάσταση σε 5 λεπτά', 'Συμβατό με GDPR'].map((t) => (
                 <div key={t} className="flex items-center gap-1.5 text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
                   <span className="text-emerald-400">
                     <IconCheck />
@@ -489,16 +489,16 @@ export default function LandingPage() {
           {/* Section header */}
           <div className="max-w-2xl mb-16">
             <p className="text-xs font-semibold uppercase tracking-[0.15em] mb-4" style={{ color: '#818cf8' }}>
-              Features
+              Λειτουργίες
             </p>
             <h2
               className="text-4xl md:text-5xl font-bold tracking-tight mb-5"
               style={{ fontFamily: 'var(--font-bricolage)', color: '#f1f5f9' }}
             >
-              Everything your club needs. Nothing it doesn't.
+              Ό,τι χρειάζεται ο σύλλογός σας. Τίποτα παραπάνω.
             </h2>
             <p className="text-base leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
-              Purpose-built for local clubs. No bloated modules. No enterprise pricing. Just the six things that actually matter.
+              Σχεδιασμένο για τοπικούς συλλόγους. Χωρίς περιττές λειτουργίες. Χωρίς εταιρική τιμολόγηση. Μόνο τα έξι πράγματα που πραγματικά μετράνε.
             </p>
           </div>
 
@@ -546,13 +546,13 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="max-w-2xl mb-16">
             <p className="text-xs font-semibold uppercase tracking-[0.15em] mb-4" style={{ color: '#818cf8' }}>
-              How it works
+              Πώς λειτουργεί
             </p>
             <h2
               className="text-4xl md:text-5xl font-bold tracking-tight"
               style={{ fontFamily: 'var(--font-bricolage)', color: '#f1f5f9' }}
             >
-              From zero to running in one afternoon.
+              Από το μηδέν σε λειτουργία σε ένα απόγευμα.
             </h2>
           </div>
 
@@ -609,16 +609,16 @@ export default function LandingPage() {
       <section id="pricing" className="px-6 md:px-10 py-28">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.15em] mb-4" style={{ color: '#818cf8' }}>
-            Pricing
+            Τιμολόγηση
           </p>
           <h2
             className="text-4xl md:text-5xl font-bold tracking-tight mb-6"
             style={{ fontFamily: 'var(--font-bricolage)', color: '#f1f5f9' }}
           >
-            One plan. Unlimited clubs.
+            Ένα πλάνο. Απεριόριστοι σύλλογοι.
           </h2>
           <p className="text-lg mb-12" style={{ color: 'rgba(255,255,255,0.45)' }}>
-            We're in early access — pricing is being finalised. Get in now and lock your rate.
+            Βρισκόμαστε σε πρόωρη πρόσβαση — η τιμολόγηση οριστικοποιείται. Εγγραφείτε τώρα και κλειδώστε την τιμή σας.
           </p>
 
           {/* Pricing card */}
@@ -638,21 +638,21 @@ export default function LandingPage() {
                   className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full mb-6"
                   style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.2)', color: '#fbbf24' }}
                 >
-                  ⚡ Early Access
+                  ⚡ Πρόωρη Πρόσβαση
                 </div>
                 <div className="flex items-end gap-2 mb-2">
                   <span
                     className="text-6xl font-black leading-none"
                     style={{ fontFamily: 'var(--font-bricolage)', color: '#f1f5f9' }}
                   >
-                    Free
+                    Δωρεάν
                   </span>
                   <span className="text-sm mb-2" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                    during beta
+                    κατά τη διάρκεια της beta
                   </span>
                 </div>
                 <p className="text-sm mb-8" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                  Full access. No credit card. Lock your rate before we launch.
+                  Πλήρης πρόσβαση. Χωρίς πιστωτική κάρτα. Κλειδώστε την τιμή σας πριν την κυκλοφορία.
                 </p>
                 <a
                   href="#contact"
@@ -663,20 +663,20 @@ export default function LandingPage() {
                     boxShadow: '0 8px 32px rgba(99,102,241,0.35)',
                   }}
                 >
-                  Request Access
+                  Ζητήστε Πρόσβαση
                   <IconArrow />
                 </a>
               </div>
 
               <div className="space-y-3">
                 {[
-                  'Unlimited club tenants',
-                  'Unlimited members per club',
-                  'Full notification system',
-                  'Resend email integration',
-                  'PWA installable app',
-                  'Neon Postgres in production',
-                  'Custom /[slug] URL',
+                  'Απεριόριστοι σύλλογοι',
+                  'Απεριόριστα μέλη ανά σύλλογο',
+                  'Πλήρες σύστημα ειδοποιήσεων',
+                  'Ενσωμάτωση email Resend',
+                  'Εγκαταστάσιμη εφαρμογή PWA',
+                  'Neon Postgres στην παραγωγή',
+                  'Προσαρμοσμένο URL /[slug]',
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-3 text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
                     <span
@@ -721,12 +721,12 @@ export default function LandingPage() {
             className="text-5xl md:text-6xl font-bold tracking-tight mb-6"
             style={{ fontFamily: 'var(--font-bricolage)', color: '#f1f5f9' }}
           >
-            Ready to give your club<br />
-            <span className="text-gradient">a proper home?</span>
+            Έτοιμοι να δώσετε στον σύλλογό σας<br />
+            <span className="text-gradient">έναν επίσημο χώρο;</span>
           </h2>
           <p className="text-lg mb-10" style={{ color: 'rgba(255,255,255,0.45)' }}>
-            Join early access and get everything for free while we're in beta.
-            Your club deserves better than a WhatsApp group.
+            Εγγραφείτε στην πρόωρη πρόσβαση και αποκτήστε τα πάντα δωρεάν κατά τη διάρκεια της beta.
+            Ο σύλλογός σας αξίζει κάτι καλύτερο από ένα WhatsApp group.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
@@ -738,7 +738,7 @@ export default function LandingPage() {
                 boxShadow: '0 8px 40px rgba(99,102,241,0.45)',
               }}
             >
-              Request early access
+              Ζητήστε πρόωρη πρόσβαση
               <IconArrow />
             </a>
             <a
@@ -749,7 +749,7 @@ export default function LandingPage() {
                 color: 'rgba(255,255,255,0.6)',
               }}
             >
-              Talk to us first
+              Μιλήστε μαζί μας πρώτα
             </a>
           </div>
         </div>
@@ -775,20 +775,20 @@ export default function LandingPage() {
             Koinon
           </span>
           <span className="text-xs ml-2" style={{ color: 'rgba(255,255,255,0.2)' }}>
-            The club management platform
+            Η πλατφόρμα διαχείρισης συλλόγων
           </span>
         </div>
 
         {/* Links */}
         <nav className="flex items-center gap-6 text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
-          <a href="#features" className="hover:text-white transition-colors">Features</a>
-          <a href="#how" className="hover:text-white transition-colors">How it works</a>
-          <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-          <a href="mailto:hello@koinon.app" className="hover:text-white transition-colors">Contact</a>
+          <a href="#features" className="hover:text-white transition-colors">Λειτουργίες</a>
+          <a href="#how" className="hover:text-white transition-colors">Πώς λειτουργεί</a>
+          <a href="#pricing" className="hover:text-white transition-colors">Τιμολόγηση</a>
+          <a href="mailto:hello@koinon.app" className="hover:text-white transition-colors">Επικοινωνία</a>
         </nav>
 
         <p className="text-xs" style={{ color: 'rgba(255,255,255,0.2)' }}>
-          © {new Date().getFullYear()} Koinon. All rights reserved.
+          © {new Date().getFullYear()} Koinon. Όλα τα δικαιώματα διατηρούνται.
         </p>
       </footer>
 

@@ -136,6 +136,18 @@ export interface User {
   firstName: string;
   lastName: string;
   role: 'master' | 'superadmin' | 'club-admin' | 'member';
+  /**
+   * Σταθερό τηλέφωνο
+   */
+  landline?: string | null;
+  /**
+   * Κινητό τηλέφωνο
+   */
+  mobile?: string | null;
+  /**
+   * Διεύθυνση κατοικίας
+   */
+  homeAddress?: string | null;
   tenant?: (number | null) | Tenant;
   updatedAt: string;
   createdAt: string;
@@ -410,6 +422,9 @@ export interface UsersSelect<T extends boolean = true> {
   firstName?: T;
   lastName?: T;
   role?: T;
+  landline?: T;
+  mobile?: T;
+  homeAddress?: T;
   tenant?: T;
   updatedAt?: T;
   createdAt?: T;

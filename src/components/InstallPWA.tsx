@@ -46,10 +46,10 @@ export function InstallPWA() {
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm bg-white rounded-2xl shadow-xl border border-slate-100 px-5 py-4 flex items-center gap-4">
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-slate-800 text-sm">
-          Add to Home Screen
+          Προσθήκη στην Αρχική
         </p>
         <p className="text-xs text-slate-500 mt-0.5">
-          Install Koinon for quick access
+          Εγκαταστήστε το Koinon για γρήγορη πρόσβαση
         </p>
       </div>
       <div className="flex gap-2">
@@ -57,13 +57,13 @@ export function InstallPWA() {
           onClick={dismiss}
           className="text-xs text-slate-400 hover:text-slate-600 px-2 py-1"
         >
-          Later
+          Αργότερα
         </button>
         <button
           onClick={install}
           className="bg-indigo-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition"
         >
-          Install
+          Εγκατάσταση
         </button>
       </div>
     </div>

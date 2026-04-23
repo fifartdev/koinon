@@ -68,7 +68,7 @@ export function NotificationBell({ clubSlug }: { clubSlug: string }) {
       <button
         onClick={() => setOpen((o) => !o)}
         className="relative p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition"
-        aria-label="Notifications"
+        aria-label="Ειδοποιήσεις"
       >
         <svg
           className="w-5 h-5"
@@ -94,16 +94,16 @@ export function NotificationBell({ clubSlug }: { clubSlug: string }) {
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
           <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
             <span className="font-semibold text-slate-700 text-sm">
-              Notifications
+              Ειδοποιήσεις
             </span>
             {unread > 0 && (
-              <span className="text-xs text-slate-400">{unread} unread</span>
+              <span className="text-xs text-slate-400">{unread} αδιάβαστες</span>
             )}
           </div>
           <div className="max-h-80 overflow-y-auto divide-y divide-slate-50">
             {notifications.length === 0 ? (
               <p className="text-center text-slate-400 text-sm py-8">
-                All caught up!
+                Είστε ενήμεροι!
               </p>
             ) : (
               notifications.map((n) => (

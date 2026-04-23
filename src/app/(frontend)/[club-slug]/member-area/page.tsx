@@ -51,25 +51,25 @@ export default async function MemberAreaPage({ params }: Props) {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-800">
-          Welcome{firstName ? `, ${firstName}` : ''}!
+          Καλώς ήρθες{firstName ? `, ${firstName}` : ''}!
         </h1>
-        <p className="text-slate-500 text-sm mt-0.5">Here's what's going on at your club.</p>
+        <p className="text-slate-500 text-sm mt-0.5">Τι γίνεται στον σύλλογό σου.</p>
       </div>
 
       {unreadCount > 0 && (
         <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-5 py-4 flex items-center gap-3">
           <span className="text-2xl">🔔</span>
           <p className="text-sm text-indigo-700 font-medium">
-            You have {unreadCount} unread notification{unreadCount > 1 ? 's' : ''}
+            Έχεις {unreadCount} αδιάβαστη{unreadCount > 1 ? 'ς' : ''} ειδοποίηση{unreadCount > 1 ? 'ς' : ''}
           </p>
         </div>
       )}
 
       {/* My Enrollments */}
       <section>
-        <h2 className="text-base font-semibold text-slate-700 mb-3">My Services</h2>
+        <h2 className="text-base font-semibold text-slate-700 mb-3">Οι Υπηρεσίες μου</h2>
         {enrollments.length === 0 ? (
-          <p className="text-slate-400 text-sm">You are not enrolled in any services yet.</p>
+          <p className="text-slate-400 text-sm">Δεν είστε εγγεγραμμένοι σε καμία υπηρεσία ακόμα.</p>
         ) : (
           <div className="space-y-3">
             {(enrollments as Enrollment[]).map((e) => {
@@ -82,7 +82,7 @@ export default async function MemberAreaPage({ params }: Props) {
                   <div>
                     <p className="font-medium text-slate-800">{service?.title ?? '—'}</p>
                     {service?.tutor && (
-                      <p className="text-xs text-slate-500 mt-0.5">Coach: {service.tutor}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Εκπαιδευτής: {service.tutor}</p>
                     )}
                   </div>
                   <span
@@ -92,7 +92,7 @@ export default async function MemberAreaPage({ params }: Props) {
                         : 'bg-red-50 text-red-600'
                     }`}
                   >
-                    {e.paymentStatus === 'paid' ? '✓ Paid' : '✗ Unpaid'}
+                    {e.paymentStatus === 'paid' ? '✓ Εξοφλήθη' : '✗ Ανεξόφλητο'}
                   </span>
                 </div>
               )
@@ -105,7 +105,7 @@ export default async function MemberAreaPage({ params }: Props) {
       {announcements.length > 0 && (
         <section>
           <h2 className="text-base font-semibold text-slate-700 mb-3">
-            Latest Announcements
+            Τελευταίες Ανακοινώσεις
           </h2>
           <div className="space-y-3">
             {(announcements as Announcement[]).map((a) => (
@@ -117,7 +117,7 @@ export default async function MemberAreaPage({ params }: Props) {
               >
                 {a.isPinned && (
                   <span className="text-xs text-indigo-500 font-semibold uppercase tracking-wide">
-                    📌 Pinned
+                    📌 Καρφιτσωμένη
                   </span>
                 )}
                 <p className="font-medium text-slate-800 mt-0.5">{a.title}</p>

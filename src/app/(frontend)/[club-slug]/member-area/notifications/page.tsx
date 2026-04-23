@@ -29,11 +29,11 @@ export default async function NotificationsPage({ params }: Props) {
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-slate-800 mb-5">Notifications</h1>
+      <h1 className="text-xl font-bold text-slate-800 mb-5">Ειδοποιήσεις</h1>
 
       {notifications.length === 0 ? (
         <div className="text-center py-16 text-slate-400">
-          All caught up — no notifications!
+          Είστε ενήμεροι — δεν υπάρχουν ειδοποιήσεις!
         </div>
       ) : (
         <div className="space-y-3">

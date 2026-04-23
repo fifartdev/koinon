@@ -45,7 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       className={`h-full ${bricolage.variable} ${dmSans.variable}`}
     >
-      <body className="h-full font-sans antialiased bg-[#07070f] text-white">
+      <body className="h-full font-sans antialiased bg-[#07070f] text-slate-900">
         {children}
       </body>
     </html>

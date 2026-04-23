@@ -5,6 +5,16 @@ import Link from 'next/link'
 import React from 'react'
 import type { Tenant, Service, Announcement } from '@/payload-types'
 
+const DAY_GREEK: Record<string, string> = {
+  Monday: 'Δευτέρα',
+  Tuesday: 'Τρίτη',
+  Wednesday: 'Τετάρτη',
+  Thursday: 'Πέμπτη',
+  Friday: 'Παρασκευή',
+  Saturday: 'Σάββατο',
+  Sunday: 'Κυριακή',
+}
+
 interface Props {
   params: Promise<{ 'club-slug': string }>
 }
@@ -86,7 +96,7 @@ export default async function ClubLandingPage({ params }: Props) {
               href={`/${slug}/login`}
               className="px-6 py-3 bg-white text-indigo-700 font-semibold rounded-xl hover:bg-indigo-50 transition"
             >
-              Member Login
+              Σύνδεση Μέλους
             </Link>
           </div>
         </div>
@@ -95,9 +105,9 @@ export default async function ClubLandingPage({ params }: Props) {
       <div className="max-w-5xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-12">
         {/* Services */}
         <section>
-          <h2 className="text-2xl font-bold text-slate-800 mb-6">Services</h2>
+          <h2 className="text-2xl font-bold text-slate-800 mb-6">Υπηρεσίες</h2>
           {services.length === 0 ? (
-            <p className="text-slate-500">No services available yet.</p>
+            <p className="text-slate-500">Δεν υπάρχουν διαθέσιμες υπηρεσίες ακόμα.</p>
           ) : (
             <div className="space-y-4">
               {(services as Service[]).map((service) => (
@@ -112,13 +122,13 @@ export default async function ClubLandingPage({ params }: Props) {
                       </h3>
                       {service.tutor && (
                         <p className="text-sm text-slate-500 mt-0.5">
-                          Coach: {service.tutor}
+                          Εκπαιδευτής: {service.tutor}
                         </p>
                       )}
                     </div>
                     {service.fee != null && (
                       <span className="text-indigo-600 font-semibold text-sm whitespace-nowrap">
-                        {service.fee} / mo
+                        {service.fee} / μήνα
                       </span>
                     )}
                   </div>
@@ -129,7 +139,7 @@ export default async function ClubLandingPage({ params }: Props) {
                           key={i}
                           className="bg-indigo-50 text-indigo-700 text-xs font-medium px-2.5 py-1 rounded-full"
                         >
-                          {s.day} {s.startTime}–{s.endTime}
+                          {DAY_GREEK[s.day ?? ''] ?? s.day} {s.startTime}–{s.endTime}
                         </span>
                       ))}
                     </div>
@@ -143,10 +153,10 @@ export default async function ClubLandingPage({ params }: Props) {
         {/* Announcements */}
         <section>
           <h2 className="text-2xl font-bold text-slate-800 mb-6">
-            Announcements
+            Ανακοινώσεις
           </h2>
           {announcements.length === 0 ? (
-            <p className="text-slate-500">No announcements yet.</p>
+            <p className="text-slate-500">Δεν υπάρχουν ανακοινώσεις ακόμα.</p>
           ) : (
             <div className="space-y-4">
               {(announcements as Announcement[]).map((a) => (
@@ -160,7 +170,7 @@ export default async function ClubLandingPage({ params }: Props) {
                 >
                   {a.isPinned && (
                     <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wide">
-                      📌 Pinned
+                      📌 Καρφιτσωμένη
                     </span>
                   )}
                   <h3 className="font-semibold text-slate-800 mt-1">

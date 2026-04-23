@@ -5,6 +5,7 @@ import config from '@payload-config'
 import Link from 'next/link'
 import React from 'react'
 import { NotificationBell } from '@/components/NotificationBell'
+import { LogoutButton } from '@/components/LogoutButton'
 
 interface Props {
   children: React.ReactNode
@@ -12,11 +13,11 @@ interface Props {
 }
 
 const NAV = [
-  { href: '', label: 'Overview', icon: '◉' },
-  { href: '/members', label: 'Members', icon: '👥' },
-  { href: '/services', label: 'Services', icon: '🗓' },
-  { href: '/announcements', label: 'Announcements', icon: '📢' },
-  { href: '/payments', label: 'Payments', icon: '💳' },
+  { href: '', label: 'Επισκόπηση', icon: '◉' },
+  { href: '/members', label: 'Μέλη', icon: '👥' },
+  { href: '/services', label: 'Υπηρεσίες', icon: '🗓' },
+  { href: '/announcements', label: 'Ανακοινώσεις', icon: '📢' },
+  { href: '/payments', label: 'Πληρωμές', icon: '💳' },
 ]
 
 export default async function DashboardLayout({ children, params }: Props) {
@@ -63,17 +64,10 @@ export default async function DashboardLayout({ children, params }: Props) {
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="bg-white border-b border-slate-100 px-6 py-3 flex items-center justify-between shrink-0">
-          <h1 className="font-semibold text-slate-700 text-sm">Dashboard</h1>
+          <h1 className="font-semibold text-slate-700 text-sm">Πίνακας Ελέγχου</h1>
           <div className="flex items-center gap-3">
             <NotificationBell clubSlug={slug} />
-            <form action="/api/users/logout" method="POST">
-              <button
-                type="submit"
-                className="text-xs text-slate-500 hover:text-slate-700"
-              >
-                Sign out
-              </button>
-            </form>
+            <LogoutButton slug={slug} className="text-xs text-slate-500 hover:text-slate-700" />
           </div>
         </header>
         <main className="flex-1 overflow-y-auto p-6">{children}</main>

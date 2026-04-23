@@ -29,20 +29,20 @@ export default async function AnnouncementsPage({ params }: Props) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-slate-800">Announcements</h2>
+        <h2 className="text-xl font-bold text-slate-800">Ανακοινώσεις</h2>
         <a
           href="/admin/collections/announcements/create"
           target="_blank"
           rel="noreferrer"
           className="bg-indigo-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-indigo-700 transition"
         >
-          + New
+          + Νέα
         </a>
       </div>
 
       {announcements.length === 0 ? (
         <div className="text-center py-16 text-slate-400">
-          No announcements yet.
+          Δεν υπάρχουν ανακοινώσεις ακόμα.
         </div>
       ) : (
         <div className="space-y-3">
@@ -57,7 +57,7 @@ export default async function AnnouncementsPage({ params }: Props) {
                 <div className="flex-1 min-w-0">
                   {a.isPinned && (
                     <span className="text-xs font-semibold text-indigo-500 uppercase tracking-wide">
-                      Pinned
+                      Καρφιτσωμένη
                     </span>
                   )}
                   <h3 className="font-semibold text-slate-800 truncate">
@@ -76,7 +76,7 @@ export default async function AnnouncementsPage({ params }: Props) {
                       : 'bg-amber-50 text-amber-600'
                   }`}
                 >
-                  {a.status === 'published' ? 'Published' : 'Draft'}
+                  {a.status === 'published' ? 'Δημοσιευμένη' : 'Πρόχειρο'}
                 </span>
               </div>
             </div>

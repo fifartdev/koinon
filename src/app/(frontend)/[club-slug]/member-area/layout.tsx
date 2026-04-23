@@ -5,6 +5,7 @@ import config from '@payload-config'
 import Link from 'next/link'
 import React from 'react'
 import { NotificationBell } from '@/components/NotificationBell'
+import { LogoutButton } from '@/components/LogoutButton'
 import { InstallPWA } from '@/components/InstallPWA'
 
 interface Props {
@@ -13,9 +14,9 @@ interface Props {
 }
 
 const NAV = [
-  { href: '', label: 'Home', icon: '🏠' },
-  { href: '/schedule', label: 'Schedule', icon: '📅' },
-  { href: '/notifications', label: 'Notifications', icon: '🔔' },
+  { href: '', label: 'Αρχική', icon: '🏠' },
+  { href: '/schedule', label: 'Πρόγραμμα', icon: '📅' },
+  { href: '/notifications', label: 'Ειδοποιήσεις', icon: '🔔' },
 ]
 
 export default async function MemberAreaLayout({ children, params }: Props) {
@@ -36,11 +37,7 @@ export default async function MemberAreaLayout({ children, params }: Props) {
         </Link>
         <div className="flex items-center gap-3">
           <NotificationBell clubSlug={slug} />
-          <form action="/api/users/logout" method="POST">
-            <button type="submit" className="text-xs text-slate-500 hover:text-slate-700">
-              Sign out
-            </button>
-          </form>
+          <LogoutButton slug={slug} className="text-xs text-slate-500 hover:text-slate-700" />
         </div>
       </header>
 
