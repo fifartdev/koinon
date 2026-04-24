@@ -16,6 +16,7 @@ interface Props {
 const NAV = [
   { href: '', label: 'Αρχική', icon: '🏠' },
   { href: '/schedule', label: 'Πρόγραμμα', icon: '📅' },
+  { href: '/receipts', label: 'Αποδείξεις', icon: '🧾' },
   { href: '/notifications', label: 'Ειδοποιήσεις', icon: '🔔' },
 ]
 

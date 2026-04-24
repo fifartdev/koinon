@@ -134,5 +134,20 @@ export const enrollmentsReadAccess: Access = ({ req }) => {
   return { member: { equals: user.id } }
 }
 
+/**
+ * Receipts:
+ * club-admin → own tenant.
+ * member → own receipts only.
+ */
+export const receiptsReadAccess: Access = ({ req }) => {
+  const user = getUser(req)
+  if (!user) return false
+  if (['master', 'superadmin'].includes(user.role ?? '')) return true
+  const tenantId = getTenantId(user)
+  if (!tenantId) return false
+  if (user.role === 'club-admin') return { tenant: { equals: tenantId } }
+  return { and: [{ member: { equals: user.id } }, { tenant: { equals: tenantId } }] }
+}
+
 /** Public read (used for landing page data — no auth required) */
 export const publicRead: Access = () => true

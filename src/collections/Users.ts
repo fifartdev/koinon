@@ -69,5 +69,39 @@ export const Users: CollectionConfig = {
         condition: (data) => ['club-admin', 'member'].includes(data?.role ?? ''),
       },
     },
+    // ── Global discount (applies on top of per-enrollment discounts) ────
+    {
+      name: 'globalDiscountType',
+      type: 'select',
+      defaultValue: 'none',
+      options: [
+        { label: 'Χωρίς γενική έκπτωση', value: 'none' },
+        { label: 'Ποσοστό (%)', value: 'percent' },
+        { label: 'Ποσό (€)', value: 'fixed' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Γενική έκπτωση για όλες τις υπηρεσίες',
+        condition: (data) => data?.role === 'member',
+      },
+    },
+    {
+      name: 'globalDiscountValue',
+      type: 'number',
+      min: 0,
+      admin: {
+        position: 'sidebar',
+        condition: (data) => data?.role === 'member' && data?.globalDiscountType && data?.globalDiscountType !== 'none',
+      },
+    },
+    {
+      name: 'globalDiscountNote',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Αιτιολογία γενικής έκπτωσης',
+        condition: (data) => data?.role === 'member' && data?.globalDiscountType && data?.globalDiscountType !== 'none',
+      },
+    },
   ],
 }

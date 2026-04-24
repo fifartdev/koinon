@@ -1,6 +1,5 @@
 import type { CollectionConfig } from 'payload'
 import { tenantAdminWrite, tenantMemberRead } from '@/access'
-import { broadcastToTenantMembers } from '@/lib/notifications'
 import { sendAnnouncementEmail } from '@/lib/resend'
 
 export const Announcements: CollectionConfig = {
@@ -26,16 +25,11 @@ export const Announcements: CollectionConfig = {
           typeof doc.tenant === 'object' ? doc.tenant?.id : doc.tenant
         if (!tenantId) return
 
-        // In-app broadcast
-        await broadcastToTenantMembers(req.payload, req, tenantId, {
-          title: doc.title,
-          message: 'A new announcement has been posted.',
-          type: 'announcement',
-        })
+        const payload = req.payload
 
-        // Email all club members
+        // In-app notifications — use overrideAccess to avoid req circular-ref deepmerge crash
         try {
-          const { docs: members } = await req.payload.find({
+          const { docs: members } = await payload.find({
             collection: 'users',
             where: {
               and: [
@@ -44,16 +38,51 @@ export const Announcements: CollectionConfig = {
               ],
             },
             limit: 2000,
-            req,
+            overrideAccess: true,
+          })
+
+          await Promise.allSettled(
+            members.map((member) =>
+              payload.create({
+                collection: 'notifications',
+                data: {
+                  title: doc.title,
+                  message: 'A new announcement has been posted.',
+                  type: 'announcement',
+                  tenant: Number(tenantId),
+                  recipient: Number(member.id),
+                  isRead: false,
+                },
+                overrideAccess: true,
+                context: { skipNotification: true },
+              }),
+            ),
+          )
+        } catch {
+          // Notification failure is non-fatal
+        }
+
+        // Email all club members
+        try {
+          const { docs: members } = await payload.find({
+            collection: 'users',
+            where: {
+              and: [
+                { tenant: { equals: tenantId } },
+                { role: { in: ['member', 'club-admin'] } },
+              ],
+            },
+            limit: 2000,
+            overrideAccess: true,
           })
 
           const tenant =
             typeof doc.tenant === 'object'
               ? doc.tenant
-              : await req.payload.findByID({
+              : await payload.findByID({
                   collection: 'tenants',
                   id: tenantId,
-                  req,
+                  overrideAccess: true,
                 })
 
           const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
@@ -88,8 +117,7 @@ export const Announcements: CollectionConfig = {
     },
     {
       name: 'content',
-      type: 'richText',
-      required: true,
+      type: 'textarea',
     },
     {
       name: 'tenant',
@@ -121,16 +149,6 @@ export const Announcements: CollectionConfig = {
       admin: {
         position: 'sidebar',
         condition: (data) => data?.status === 'published',
-      },
-      hooks: {
-        beforeChange: [
-          ({ data, siblingData }) => {
-            if (siblingData?.status === 'published' && !data) {
-              return new Date().toISOString()
-            }
-            return data
-          },
-        ],
       },
     },
   ],

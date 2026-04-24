@@ -131,6 +131,24 @@
   backdrop-filter: blur(12px);
 }
 
+/* ─── Print ──────────────────────────────────────────────── */
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+  }
+
+  @page {
+    margin: 1.5cm;
+  }
+}
+
 /* feature card hover glow */
 .feature-card {
   transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;

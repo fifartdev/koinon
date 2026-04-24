@@ -67,6 +67,16 @@ export async function DELETE(request: Request) {
       await payload.delete({ collection: 'notifications', id: String(n.id), overrideAccess: true })
     }
 
+    const { docs: receipts } = await payload.find({
+      collection: 'receipts',
+      where: { member: { equals: userId } },
+      limit: 1000,
+      overrideAccess: true,
+    })
+    for (const r of receipts) {
+      await payload.delete({ collection: 'receipts', id: String(r.id), overrideAccess: true })
+    }
+
     await payload.delete({ collection: 'users', id: userId, overrideAccess: true })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Σφάλμα διαγραφής'

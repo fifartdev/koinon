@@ -41,7 +41,7 @@ const SKIP_PREFIXES = [
   '/icons',
 ]
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (SKIP_PREFIXES.some((p) => pathname.startsWith(p))) {
@@ -59,6 +59,11 @@ export function middleware(request: NextRequest) {
   const subPath = segments[1] // 'dashboard' | 'member-area' | undefined
 
   const user = getTokenUser(request)
+
+  // Master users belong in Payload admin — redirect them away from all frontend routes
+  if (user?.role === 'master') {
+    return NextResponse.redirect(new URL('/admin', request.url))
+  }
 
   if (subPath === 'dashboard') {
     if (!user) {

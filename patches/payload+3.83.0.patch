@@ -1,0 +1,22 @@
+diff --git a/node_modules/payload/dist/utilities/deepMerge.js b/node_modules/payload/dist/utilities/deepMerge.js
+index 5480204..fe209b3 100644
+--- a/node_modules/payload/dist/utilities/deepMerge.js
++++ b/node_modules/payload/dist/utilities/deepMerge.js
+@@ -28,8 +28,16 @@ export { deepMerge };
+  *
+  * Array handling: Arrays in the target object are replaced by the source object's arrays.
+  */ export function deepMergeWithSourceArrays(obj1, obj2) {
++    const seen = new WeakSet();
+     return deepMerge(obj1, obj2, {
+-        arrayMerge: (_, source)=>source
++        arrayMerge: (_, source)=>source,
++        isMergeableObject: (value) => {
++            if (typeof value !== 'object' || value === null) return false;
++            if (value instanceof Date || value instanceof RegExp) return false;
++            if (seen.has(value)) return false;
++            seen.add(value);
++            return true;
++        }
+     });
+ }
+ /**

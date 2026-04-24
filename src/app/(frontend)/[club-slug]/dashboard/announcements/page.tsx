@@ -1,8 +1,10 @@
 import { headers as getHeaders } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import Link from 'next/link'
 import React from 'react'
 import type { Announcement } from '@/payload-types'
+import { AnnouncementActions } from '@/components/AnnouncementActions'
 
 interface Props {
   params: Promise<{ 'club-slug': string }>
@@ -14,10 +16,12 @@ export default async function AnnouncementsPage({ params }: Props) {
   const payload = await getPayload({ config })
   const { user } = await payload.auth({ headers })
 
-  const tenantId =
-    typeof (user as { tenant?: string | { id: string } })?.tenant === 'object'
-      ? ((user as { tenant: { id: string } }).tenant.id)
-      : ((user as { tenant?: string })?.tenant ?? '')
+  const tenantId = String(
+    typeof (user as { tenant?: unknown }).tenant === 'object' &&
+    (user as { tenant?: unknown }).tenant !== null
+      ? (user as { tenant: { id: unknown } }).tenant.id
+      : (user as { tenant?: unknown }).tenant ?? '',
+  )
 
   const { docs: announcements } = await payload.find({
     collection: 'announcements',
@@ -30,14 +34,12 @@ export default async function AnnouncementsPage({ params }: Props) {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-slate-800">Ανακοινώσεις</h2>
-        <a
-          href="/admin/collections/announcements/create"
-          target="_blank"
-          rel="noreferrer"
+        <Link
+          href={`/${slug}/dashboard/announcements/new`}
           className="bg-indigo-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-indigo-700 transition"
         >
           + Νέα
-        </a>
+        </Link>
       </div>
 
       {announcements.length === 0 ? (
@@ -60,24 +62,25 @@ export default async function AnnouncementsPage({ params }: Props) {
                       Καρφιτσωμένη
                     </span>
                   )}
-                  <h3 className="font-semibold text-slate-800 truncate">
-                    {a.title}
-                  </h3>
+                  <h3 className="font-semibold text-slate-800 truncate">{a.title}</h3>
                   {a.publishedAt && (
                     <p className="text-xs text-slate-400 mt-0.5">
-                      {new Date(a.publishedAt).toLocaleDateString()}
+                      {new Date(a.publishedAt).toLocaleDateString('el-GR')}
                     </p>
                   )}
                 </div>
-                <span
-                  className={`shrink-0 text-xs px-2.5 py-1 rounded-full font-medium ${
-                    a.status === 'published'
-                      ? 'bg-emerald-50 text-emerald-600'
-                      : 'bg-amber-50 text-amber-600'
-                  }`}
-                >
-                  {a.status === 'published' ? 'Δημοσιευμένη' : 'Πρόχειρο'}
-                </span>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span
+                    className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                      a.status === 'published'
+                        ? 'bg-emerald-50 text-emerald-600'
+                        : 'bg-amber-50 text-amber-600'
+                    }`}
+                  >
+                    {a.status === 'published' ? 'Δημοσιευμένη' : 'Πρόχειρο'}
+                  </span>
+                  <AnnouncementActions slug={slug} announcementId={a.id} />
+                </div>
               </div>
             </div>
           ))}

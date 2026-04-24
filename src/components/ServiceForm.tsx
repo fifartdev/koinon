@@ -32,10 +32,15 @@ export function ServiceForm({ tenantId, slug, service }: Props) {
   const router = useRouter()
   const isEdit = !!service
 
-  const [title, setTitle] = useState(service?.title ?? '')
-  const [tutor, setTutor] = useState(service?.tutor ?? '')
-  const [fee, setFee] = useState(service?.fee != null ? String(service.fee) : '')
-  const [isActive, setIsActive] = useState(service?.isActive ?? true)
+  const svc = service as (typeof service & { pricingType?: string; sessionFee?: number | null }) | undefined
+  const [title, setTitle] = useState(svc?.title ?? '')
+  const [tutor, setTutor] = useState(svc?.tutor ?? '')
+  const [pricingType, setPricingType] = useState<'monthly' | 'per-session'>(
+    (svc?.pricingType as 'monthly' | 'per-session') ?? 'monthly',
+  )
+  const [fee, setFee] = useState(svc?.fee != null ? String(svc.fee) : '')
+  const [sessionFee, setSessionFee] = useState(svc?.sessionFee != null ? String(svc.sessionFee) : '')
+  const [isActive, setIsActive] = useState(svc?.isActive ?? true)
   const [slots, setSlots] = useState<Slot[]>(
     service?.weeklySchedule?.map((s) => ({
       day: s.day ?? 'Monday',
@@ -67,7 +72,9 @@ export function ServiceForm({ tenantId, slug, service }: Props) {
     const body = {
       title,
       tutor: tutor || undefined,
-      fee: fee !== '' ? Number(fee) : undefined,
+      pricingType,
+      fee: pricingType === 'monthly' && fee !== '' ? Number(fee) : undefined,
+      sessionFee: pricingType === 'per-session' && sessionFee !== '' ? Number(sessionFee) : undefined,
       isActive,
       tenant: Number(tenantId),
       weeklySchedule: slots.map((s) => ({
@@ -130,17 +137,45 @@ export function ServiceForm({ tenantId, slug, service }: Props) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Εκπαιδευτής</label>
-            <input
-              type="text"
-              value={tutor}
-              onChange={(e) => setTutor(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              placeholder="Όνομα εκπαιδευτή"
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Εκπαιδευτής</label>
+          <input
+            type="text"
+            value={tutor}
+            onChange={(e) => setTutor(e.target.value)}
+            className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            placeholder="Όνομα εκπαιδευτή"
+          />
+        </div>
+
+        <label className="flex items-center gap-3 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={isActive}
+            onChange={(e) => setIsActive(e.target.checked)}
+            className="w-4 h-4 rounded accent-indigo-600"
+          />
+          <span className="text-sm font-medium text-slate-700">Ενεργή υπηρεσία</span>
+        </label>
+      </div>
+
+      {/* Billing */}
+      <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-4">
+        <h3 className="font-semibold text-slate-700 text-sm">Χρέωση</h3>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Τύπος Χρέωσης</label>
+          <select
+            value={pricingType}
+            onChange={(e) => setPricingType(e.target.value as 'monthly' | 'per-session')}
+            className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="monthly">Μηνιαίο</option>
+            <option value="per-session">Ανά Συνεδρία</option>
+          </select>
+        </div>
+
+        {pricingType === 'monthly' && (
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Μηνιαίο Τέλος (€)</label>
             <input
@@ -153,17 +188,22 @@ export function ServiceForm({ tenantId, slug, service }: Props) {
               placeholder="0"
             />
           </div>
-        </div>
+        )}
 
-        <label className="flex items-center gap-3 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={isActive}
-            onChange={(e) => setIsActive(e.target.checked)}
-            className="w-4 h-4 rounded accent-indigo-600"
-          />
-          <span className="text-sm font-medium text-slate-700">Ενεργή υπηρεσία</span>
-        </label>
+        {pricingType === 'per-session' && (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Τέλος ανά Συνεδρία (€)</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={sessionFee}
+              onChange={(e) => setSessionFee(e.target.value)}
+              className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              placeholder="0"
+            />
+          </div>
+        )}
       </div>
 
       {/* Weekly schedule */}

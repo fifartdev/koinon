@@ -119,6 +119,59 @@ export const Enrollments: CollectionConfig = {
       defaultValue: () => new Date().toISOString(),
       admin: { position: 'sidebar' },
     },
+    // ── Plan ────────────────────────────────────────────────────────────
+    {
+      name: 'planType',
+      type: 'select',
+      defaultValue: 'monthly',
+      options: [
+        { label: 'Μηνιαίο', value: 'monthly' },
+        { label: 'Συνεδρίες', value: 'sessions' },
+      ],
+      admin: { position: 'sidebar', description: 'Τύπος πλάνου μέλους' },
+    },
+    {
+      name: 'planTotal',
+      type: 'number',
+      min: 1,
+      admin: { position: 'sidebar', description: 'Συνολικοί μήνες ή συνεδρίες' },
+    },
+    {
+      name: 'planStart',
+      type: 'date',
+      admin: { position: 'sidebar', description: 'Έναρξη πλάνου' },
+    },
+    // ── Discount ─────────────────────────────────────────────────────────
+    {
+      name: 'discountType',
+      type: 'select',
+      defaultValue: 'none',
+      options: [
+        { label: 'Χωρίς έκπτωση', value: 'none' },
+        { label: 'Ποσοστό (%)', value: 'percent' },
+        { label: 'Ποσό (€)', value: 'fixed' },
+      ],
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'discountValue',
+      type: 'number',
+      min: 0,
+      admin: {
+        position: 'sidebar',
+        description: 'Τιμή έκπτωσης',
+        condition: (data) => data?.discountType && data?.discountType !== 'none',
+      },
+    },
+    {
+      name: 'discountNote',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Αιτιολογία έκπτωσης (προαιρετικό)',
+        condition: (data) => data?.discountType && data?.discountType !== 'none',
+      },
+    },
   ],
   timestamps: true,
 }

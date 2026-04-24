@@ -38,7 +38,17 @@ export function NotificationBell({ clubSlug }: { clubSlug: string }) {
   useEffect(() => {
     fetchNotifications()
     const interval = setInterval(fetchNotifications, 30_000)
-    return () => clearInterval(interval)
+
+    // Re-fetch when user returns to tab (e.g. after reading notifications)
+    function onVisibility() {
+      if (document.visibilityState === 'visible') fetchNotifications()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
   }, [])
 
   useEffect(() => {

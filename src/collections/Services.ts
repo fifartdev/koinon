@@ -77,10 +77,35 @@ export const Services: CollectionConfig = {
       ],
     },
     {
+      name: 'pricingType',
+      type: 'select',
+      defaultValue: 'monthly',
+      required: true,
+      options: [
+        { label: 'Μηνιαίο', value: 'monthly' },
+        { label: 'Ανά Συνεδρία', value: 'per-session' },
+      ],
+      admin: { position: 'sidebar', description: 'Τύπος χρέωσης' },
+    },
+    {
       name: 'fee',
       type: 'number',
       min: 0,
-      admin: { description: 'Monthly fee in local currency' },
+      admin: {
+        position: 'sidebar',
+        description: 'Μηνιαίο τέλος (€) — συμπληρώστε για μηνιαίο πλάνο',
+        condition: (data) => !data?.pricingType || data?.pricingType === 'monthly',
+      },
+    },
+    {
+      name: 'sessionFee',
+      type: 'number',
+      min: 0,
+      admin: {
+        position: 'sidebar',
+        description: 'Τέλος ανά συνεδρία (€)',
+        condition: (data) => data?.pricingType === 'per-session',
+      },
     },
     {
       name: 'isActive',

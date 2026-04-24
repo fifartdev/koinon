@@ -105,9 +105,9 @@ export default async function ClubLandingPage({ params }: Props) {
       <div className="max-w-5xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-12">
         {/* Services */}
         <section>
-          <h2 className="text-2xl font-bold text-slate-800 mb-6">Υπηρεσίες</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">Υπηρεσίες</h2>
           {services.length === 0 ? (
-            <p className="text-slate-500">Δεν υπάρχουν διαθέσιμες υπηρεσίες ακόμα.</p>
+            <p className="text-slate-400">Δεν υπάρχουν διαθέσιμες υπηρεσίες ακόμα.</p>
           ) : (
             <div className="space-y-4">
               {(services as Service[]).map((service) => (
@@ -152,11 +152,11 @@ export default async function ClubLandingPage({ params }: Props) {
 
         {/* Announcements */}
         <section>
-          <h2 className="text-2xl font-bold text-slate-800 mb-6">
+          <h2 className="text-2xl font-bold text-white mb-6">
             Ανακοινώσεις
           </h2>
           {announcements.length === 0 ? (
-            <p className="text-slate-500">Δεν υπάρχουν ανακοινώσεις ακόμα.</p>
+            <p className="text-slate-400">Δεν υπάρχουν ανακοινώσεις ακόμα.</p>
           ) : (
             <div className="space-y-4">
               {(announcements as Announcement[]).map((a) => (
@@ -176,9 +176,14 @@ export default async function ClubLandingPage({ params }: Props) {
                   <h3 className="font-semibold text-slate-800 mt-1">
                     {a.title}
                   </h3>
+                  {a.content && (
+                    <p className="text-sm text-slate-600 mt-2 whitespace-pre-wrap leading-relaxed">
+                      {a.content as string}
+                    </p>
+                  )}
                   {a.publishedAt && (
-                    <p className="text-xs text-slate-400 mt-1">
-                      {new Date(a.publishedAt).toLocaleDateString()}
+                    <p className="text-xs text-slate-400 mt-2">
+                      {new Date(a.publishedAt).toLocaleDateString('el-GR')}
                     </p>
                   )}
                 </div>

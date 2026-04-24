@@ -74,6 +74,7 @@ export interface Config {
     enrollments: Enrollment;
     announcements: Announcement;
     notifications: Notification;
+    receipts: Receipt;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -88,6 +89,7 @@ export interface Config {
     enrollments: EnrollmentsSelect<false> | EnrollmentsSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     notifications: NotificationsSelect<false> | NotificationsSelect<true>;
+    receipts: ReceiptsSelect<false> | ReceiptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -149,6 +151,15 @@ export interface User {
    */
   homeAddress?: string | null;
   tenant?: (number | null) | Tenant;
+  /**
+   * Γενική έκπτωση για όλες τις υπηρεσίες
+   */
+  globalDiscountType?: ('none' | 'percent' | 'fixed') | null;
+  globalDiscountValue?: number | null;
+  /**
+   * Αιτιολογία γενικής έκπτωσης
+   */
+  globalDiscountNote?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -254,9 +265,17 @@ export interface Service {
       }[]
     | null;
   /**
-   * Monthly fee in local currency
+   * Τύπος χρέωσης
+   */
+  pricingType: 'monthly' | 'per-session';
+  /**
+   * Μηνιαίο τέλος (€) — συμπληρώστε για μηνιαίο πλάνο
    */
   fee?: number | null;
+  /**
+   * Τέλος ανά συνεδρία (€)
+   */
+  sessionFee?: number | null;
   isActive?: boolean | null;
   updatedAt: string;
   createdAt: string;
@@ -273,6 +292,27 @@ export interface Enrollment {
   paymentStatus: 'paid' | 'unpaid';
   paidAt?: string | null;
   enrolledAt?: string | null;
+  /**
+   * Τύπος πλάνου μέλους
+   */
+  planType?: ('monthly' | 'sessions') | null;
+  /**
+   * Συνολικοί μήνες ή συνεδρίες
+   */
+  planTotal?: number | null;
+  /**
+   * Έναρξη πλάνου
+   */
+  planStart?: string | null;
+  discountType?: ('none' | 'percent' | 'fixed') | null;
+  /**
+   * Τιμή έκπτωσης
+   */
+  discountValue?: number | null;
+  /**
+   * Αιτιολογία έκπτωσης (προαιρετικό)
+   */
+  discountNote?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -283,21 +323,7 @@ export interface Enrollment {
 export interface Announcement {
   id: number;
   title: string;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
+  content?: string | null;
   tenant: number | Tenant;
   isPinned?: boolean | null;
   status: 'draft' | 'published';
@@ -317,6 +343,53 @@ export interface Notification {
   tenant: number | Tenant;
   recipient: number | User;
   isRead?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "receipts".
+ */
+export interface Receipt {
+  id: number;
+  /**
+   * Ελεύθερη μορφή, π.χ. ΑΠΟ-2026-001
+   */
+  receiptNumber: string;
+  member: number | User;
+  tenant: number | Tenant;
+  issuedBy?: (number | null) | User;
+  issuedAt: string;
+  paymentMethod: 'cash' | 'transfer' | 'card' | 'other';
+  lineItems: {
+    enrollment?: (number | null) | Enrollment;
+    /**
+     * π.χ. Απρίλιος 2026 ή 8 συνεδρίες
+     */
+    description: string;
+    /**
+     * Αριθμός συνεδριών (μόνο για πλάνα συνεδριών)
+     */
+    sessionsCount?: number | null;
+    /**
+     * Τιμή προ έκπτωσης (€)
+     */
+    baseAmount: number;
+    /**
+     * Έκπτωση (€)
+     */
+    discountAmount?: number | null;
+    /**
+     * Τελικό ποσό (€)
+     */
+    finalAmount: number;
+    id?: string | null;
+  }[];
+  /**
+   * Σύνολο (€)
+   */
+  totalAmount: number;
+  notes?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -371,6 +444,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'notifications';
         value: number | Notification;
+      } | null)
+    | ({
+        relationTo: 'receipts';
+        value: number | Receipt;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -426,6 +503,9 @@ export interface UsersSelect<T extends boolean = true> {
   mobile?: T;
   homeAddress?: T;
   tenant?: T;
+  globalDiscountType?: T;
+  globalDiscountValue?: T;
+  globalDiscountNote?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -494,7 +574,9 @@ export interface ServicesSelect<T extends boolean = true> {
         location?: T;
         id?: T;
       };
+  pricingType?: T;
   fee?: T;
+  sessionFee?: T;
   isActive?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -510,6 +592,12 @@ export interface EnrollmentsSelect<T extends boolean = true> {
   paymentStatus?: T;
   paidAt?: T;
   enrolledAt?: T;
+  planType?: T;
+  planTotal?: T;
+  planStart?: T;
+  discountType?: T;
+  discountValue?: T;
+  discountNote?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -538,6 +626,33 @@ export interface NotificationsSelect<T extends boolean = true> {
   tenant?: T;
   recipient?: T;
   isRead?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "receipts_select".
+ */
+export interface ReceiptsSelect<T extends boolean = true> {
+  receiptNumber?: T;
+  member?: T;
+  tenant?: T;
+  issuedBy?: T;
+  issuedAt?: T;
+  paymentMethod?: T;
+  lineItems?:
+    | T
+    | {
+        enrollment?: T;
+        description?: T;
+        sessionsCount?: T;
+        baseAmount?: T;
+        discountAmount?: T;
+        finalAmount?: T;
+        id?: T;
+      };
+  totalAmount?: T;
+  notes?: T;
   updatedAt?: T;
   createdAt?: T;
 }
