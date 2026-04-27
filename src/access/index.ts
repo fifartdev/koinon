@@ -82,9 +82,9 @@ export const usersReadAccess: Access = ({ req }) => {
   if (user.role === 'club-admin') {
     const tenantId = getTenantId(user)
     if (!tenantId) return false
-    return { tenant: { equals: tenantId } }
+    return { tenant: { equals: tenantId } } as any // eslint-disable-line @typescript-eslint/no-explicit-any
   }
-  return { id: { equals: user.id } }
+  return { id: { equals: user.id } } as any // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 /**
@@ -100,9 +100,9 @@ export const usersUpdateAccess: Access = ({ req }) => {
   if (user.role === 'club-admin') {
     const tenantId = getTenantId(user)
     if (!tenantId) return false
-    return { tenant: { equals: tenantId } }
+    return { tenant: { equals: tenantId } } as any // eslint-disable-line @typescript-eslint/no-explicit-any
   }
-  return { id: { equals: user.id } }
+  return { id: { equals: user.id } } as any // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 /**
@@ -131,7 +131,7 @@ export const enrollmentsReadAccess: Access = ({ req }) => {
     return { tenant: { equals: tenantId } }
   }
   // member sees own enrollments
-  return { member: { equals: user.id } }
+  return { member: { equals: user.id } } as any // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 /**
@@ -145,8 +145,8 @@ export const receiptsReadAccess: Access = ({ req }) => {
   if (['master', 'superadmin'].includes(user.role ?? '')) return true
   const tenantId = getTenantId(user)
   if (!tenantId) return false
-  if (user.role === 'club-admin') return { tenant: { equals: tenantId } }
-  return { and: [{ member: { equals: user.id } }, { tenant: { equals: tenantId } }] }
+  if (user.role === 'club-admin') return { tenant: { equals: tenantId } } as any // eslint-disable-line @typescript-eslint/no-explicit-any
+  return { and: [{ member: { equals: user.id } }, { tenant: { equals: tenantId } }] } as any // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 /** Public read (used for landing page data — no auth required) */

@@ -3,8 +3,8 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import Link from 'next/link'
 import React from 'react'
-import type { User } from '@/payload-types'
-import { MemberActions } from '@/components/MemberActions'
+import { computeRate } from '@/lib/pricing'
+import { MembersClient, type MemberRow } from '@/components/MembersClient'
 
 interface Props {
   params: Promise<{ 'club-slug': string }>
@@ -16,18 +16,146 @@ export default async function MembersPage({ params }: Props) {
   const payload = await getPayload({ config })
   const { user } = await payload.auth({ headers })
 
-  const tenantId =
-    typeof (user as { tenant?: string | { id: string } })?.tenant === 'object'
-      ? ((user as { tenant: { id: string } }).tenant.id)
-      : ((user as { tenant?: string })?.tenant ?? '')
+  const tenantId = String(
+    typeof (user as { tenant?: unknown }).tenant === 'object' && (user as { tenant: unknown }).tenant !== null
+      ? (user as { tenant: { id: unknown } }).tenant.id
+      : (user as { tenant?: unknown }).tenant ?? '',
+  )
 
-  const { docs: members } = await payload.find({
-    collection: 'users',
-    where: { and: [{ tenant: { equals: tenantId } }, { role: { equals: 'member' } }] },
-    sort: 'firstName',
-    limit: 100,
-    depth: 0,
+  const [
+    { docs: members },
+    { docs: dependents },
+    { docs: services },
+    { docs: enrollments },
+    { docs: receipts },
+  ] = await Promise.all([
+    payload.find({
+      collection: 'users',
+      where: { and: [{ tenant: { equals: tenantId } }, { role: { equals: 'member' } }] },
+      sort: 'firstName',
+      limit: 500,
+      depth: 0,
+    }),
+    payload.find({
+      collection: 'dependents',
+      where: { tenant: { equals: tenantId } },
+      limit: 500,
+      depth: 0,
+    }),
+    payload.find({
+      collection: 'services',
+      where: { tenant: { equals: tenantId } },
+      limit: 200,
+      depth: 0,
+    }),
+    payload.find({
+      collection: 'enrollments',
+      where: { tenant: { equals: tenantId } },
+      depth: 1,
+      limit: 1000,
+    }),
+    payload.find({
+      collection: 'receipts',
+      where: { tenant: { equals: tenantId } },
+      depth: 1,
+      limit: 2000,
+    }),
+  ])
+
+  // ── Compute receipt totals per enrollment ──────────────────────────────
+  const receiptSums: Record<string, number> = {}
+  for (const receipt of receipts) {
+    const lines = (receipt as unknown as { lineItems?: { enrollment?: unknown; finalAmount?: number | null }[] }).lineItems ?? []
+    for (const line of lines) {
+      const eId = String(
+        typeof line.enrollment === 'object' && line.enrollment !== null
+          ? (line.enrollment as { id: unknown }).id
+          : (line.enrollment ?? ''),
+      )
+      if (!eId) continue
+      receiptSums[eId] = (receiptSums[eId] ?? 0) + (line.finalAmount ?? 0)
+    }
+  }
+
+  // ── Compute per-member balance and enrolled services ───────────────────
+  const memberBalance: Record<string, number> = {}
+  const memberServiceIds: Record<string, Set<string>> = {}
+
+  for (const e of enrollments) {
+    const eAny = e as unknown as {
+      id: number
+      member?: { id: number; globalDiscountType?: string | null; globalDiscountValue?: number | null } | null
+      service?: { id: number; fee?: number | null; sessionFee?: number | null } | null
+      planType?: 'monthly' | 'sessions' | null
+      planTotal?: number | null
+      discountType?: string | null
+      discountValue?: number | null
+    }
+
+    const memberId = eAny.member ? String(eAny.member.id) : null
+    if (!memberId || !eAny.service) continue
+
+    const planTotal = eAny.planTotal ?? 0
+    if (planTotal === 0) continue
+
+    const planType: 'monthly' | 'sessions' = eAny.planType === 'sessions' ? 'sessions' : 'monthly'
+    const unitRate = planType === 'sessions' ? (eAny.service.sessionFee ?? 0) : (eAny.service.fee ?? 0)
+    const { finalRate } = computeRate(
+      unitRate,
+      { discountType: eAny.discountType, discountValue: eAny.discountValue },
+      { globalDiscountType: eAny.member?.globalDiscountType, globalDiscountValue: eAny.member?.globalDiscountValue },
+    )
+    const totalPlanValue = finalRate * planTotal
+    const totalPaid = receiptSums[String(eAny.id)] ?? 0
+    const balance = Math.max(0, totalPlanValue - totalPaid)
+
+    memberBalance[memberId] = (memberBalance[memberId] ?? 0) + balance
+
+    const svcId = String(eAny.service.id)
+    if (!memberServiceIds[memberId]) memberServiceIds[memberId] = new Set()
+    memberServiceIds[memberId]!.add(svcId)
+  }
+
+  // ── Group dependents by parent ─────────────────────────────────────────
+  const depsByParent: Record<string, { id: string; firstName: string; lastName: string; dateOfBirth?: string | null }[]> = {}
+  for (const dep of dependents) {
+    const depAny = dep as unknown as { id: number; firstName?: string; lastName?: string; dateOfBirth?: string | null; parent?: number | { id: number } | null }
+    const parentId = String(
+      typeof depAny.parent === 'object' && depAny.parent !== null
+        ? depAny.parent.id
+        : (depAny.parent ?? ''),
+    )
+    if (!parentId) continue
+    if (!depsByParent[parentId]) depsByParent[parentId] = []
+    depsByParent[parentId]!.push({
+      id: String(depAny.id),
+      firstName: depAny.firstName ?? '',
+      lastName: depAny.lastName ?? '',
+      dateOfBirth: depAny.dateOfBirth,
+    })
+  }
+
+  // ── Build MemberRow array ──────────────────────────────────────────────
+  const memberRows: MemberRow[] = members.map((m) => {
+    const mAny = m as unknown as { id: number; firstName?: string; lastName?: string; email: string; mobile?: string | null; landline?: string | null }
+    const mId = String(mAny.id)
+    return {
+      id: mId,
+      firstName: mAny.firstName ?? '',
+      lastName: mAny.lastName ?? '',
+      email: mAny.email,
+      mobile: mAny.mobile,
+      landline: mAny.landline,
+      hasUnpaidBalance: (memberBalance[mId] ?? 0) > 0.01,
+      enrolledServiceIds: [...(memberServiceIds[mId] ?? new Set())],
+      dependents: depsByParent[mId] ?? [],
+    }
   })
+
+  const serviceList = services.map((s) => ({
+    id: String((s as unknown as { id: number }).id),
+    title: (s as unknown as { title: string }).title,
+  }))
 
   return (
     <div>
@@ -41,50 +169,7 @@ export default async function MembersPage({ params }: Props) {
         </Link>
       </div>
 
-      {members.length === 0 ? (
-        <div className="text-center py-16 text-slate-400">
-          <p className="text-lg">Δεν υπάρχουν μέλη ακόμα.</p>
-          <p className="text-sm mt-1">Προσκαλέστε το πρώτο σας μέλος για να ξεκινήσετε.</p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50">
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Όνομα</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Email</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Υπηρεσίες</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Ενέργειες</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {(members as User[]).map((m) => (
-                <tr key={m.id} className="hover:bg-slate-50">
-                  <td className="px-5 py-3 font-medium text-slate-800">
-                    {(m as { firstName?: string }).firstName}{' '}
-                    {(m as { lastName?: string }).lastName}
-                  </td>
-                  <td className="px-5 py-3 text-slate-500">{m.email}</td>
-                  <td className="px-5 py-3">
-                    <Link
-                      href={`/${slug}/dashboard/members/${m.id}/enrollments`}
-                      className="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition"
-                    >
-                      Εγγραφές
-                    </Link>
-                  </td>
-                  <td className="px-5 py-3">
-                    <MemberActions
-                      userId={String(m.id)}
-                      memberName={`${(m as { firstName?: string }).firstName ?? ''} ${(m as { lastName?: string }).lastName ?? ''}`.trim() || m.email!}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <MembersClient members={memberRows} services={serviceList} slug={slug} />
     </div>
   )
 }

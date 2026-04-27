@@ -11,8 +11,8 @@ interface NotificationData {
 export async function createNotification(
   payload: Payload,
   req: PayloadRequest,
-  recipientId: string,
-  tenantId: string,
+  recipientId: string | number,
+  tenantId: string | number,
   data: NotificationData,
 ) {
   return payload.create({
@@ -21,8 +21,8 @@ export async function createNotification(
       title: data.title,
       message: data.message,
       type: data.type,
-      tenant: tenantId,
-      recipient: recipientId,
+      tenant: Number(tenantId),
+      recipient: Number(recipientId),
       isRead: false,
     },
     req,
@@ -33,7 +33,7 @@ export async function createNotification(
 export async function broadcastToTenantMembers(
   payload: Payload,
   req: PayloadRequest,
-  tenantId: string,
+  tenantId: string | number,
   data: NotificationData,
 ) {
   const { docs: members } = await payload.find({
@@ -45,13 +45,13 @@ export async function broadcastToTenantMembers(
       ],
     },
     limit: 2000,
-    select: { id: true },
+    depth: 0,
     req,
   })
 
   await Promise.all(
     members.map((member) =>
-      createNotification(payload, req, member.id as string, tenantId, data),
+      createNotification(payload, req, member.id, tenantId, data),
     ),
   )
 }

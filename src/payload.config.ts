@@ -10,6 +10,7 @@ import { Media } from './collections/Media'
 import { Tenants } from './collections/Tenants'
 import { Services } from './collections/Services'
 import { Enrollments } from './collections/Enrollments'
+import { Dependents } from './collections/Dependents'
 import { Announcements } from './collections/Announcements'
 import { Notifications } from './collections/Notifications'
 import { Receipts } from './collections/Receipts'
@@ -33,6 +34,7 @@ export default buildConfig({
     Tenants,
     Services,
     Enrollments,
+    Dependents,
     Announcements,
     Notifications,
     Receipts,

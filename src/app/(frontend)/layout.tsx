@@ -21,7 +21,6 @@ export const metadata = {
   description:
     'Stop managing clubs with group chats. Koinon gives every club a dedicated space for members, schedules, payments, and announcements.',
   manifest: '/manifest.json',
-  themeColor: '#4f46e5',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -37,6 +36,7 @@ export const metadata = {
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
+  themeColor: '#4f46e5',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

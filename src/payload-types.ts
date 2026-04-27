@@ -72,6 +72,7 @@ export interface Config {
     tenants: Tenant;
     services: Service;
     enrollments: Enrollment;
+    dependents: Dependent;
     announcements: Announcement;
     notifications: Notification;
     receipts: Receipt;
@@ -87,6 +88,7 @@ export interface Config {
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
     enrollments: EnrollmentsSelect<false> | EnrollmentsSelect<true>;
+    dependents: DependentsSelect<false> | DependentsSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     notifications: NotificationsSelect<false> | NotificationsSelect<true>;
     receipts: ReceiptsSelect<false> | ReceiptsSelect<true>;
@@ -286,7 +288,14 @@ export interface Service {
  */
 export interface Enrollment {
   id: number;
-  member: number | User;
+  /**
+   * Ενήλικο μέλος (αφήστε κενό για εξαρτώμενο)
+   */
+  member?: (number | null) | User;
+  /**
+   * Εξαρτώμενο μέλος (παιδί) — εναλλακτικά του member
+   */
+  dependent?: (number | null) | Dependent;
   service: number | Service;
   tenant: number | Tenant;
   paymentStatus: 'paid' | 'unpaid';
@@ -313,6 +322,30 @@ export interface Enrollment {
    * Αιτιολογία έκπτωσης (προαιρετικό)
    */
   discountNote?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dependents".
+ */
+export interface Dependent {
+  id: number;
+  firstName: string;
+  lastName: string;
+  /**
+   * Ημερομηνία γέννησης (προαιρετικό)
+   */
+  dateOfBirth?: string | null;
+  /**
+   * Γονέας / κηδεμόνας (ενήλικο μέλος)
+   */
+  parent: number | User;
+  tenant: number | Tenant;
+  /**
+   * Σημειώσεις
+   */
+  notes?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -436,6 +469,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'enrollments';
         value: number | Enrollment;
+      } | null)
+    | ({
+        relationTo: 'dependents';
+        value: number | Dependent;
       } | null)
     | ({
         relationTo: 'announcements';
@@ -587,6 +624,7 @@ export interface ServicesSelect<T extends boolean = true> {
  */
 export interface EnrollmentsSelect<T extends boolean = true> {
   member?: T;
+  dependent?: T;
   service?: T;
   tenant?: T;
   paymentStatus?: T;
@@ -598,6 +636,20 @@ export interface EnrollmentsSelect<T extends boolean = true> {
   discountType?: T;
   discountValue?: T;
   discountNote?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dependents_select".
+ */
+export interface DependentsSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  dateOfBirth?: T;
+  parent?: T;
+  tenant?: T;
+  notes?: T;
   updatedAt?: T;
   createdAt?: T;
 }

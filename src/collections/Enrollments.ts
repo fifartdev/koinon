@@ -78,8 +78,15 @@ export const Enrollments: CollectionConfig = {
       name: 'member',
       type: 'relationship',
       relationTo: 'users',
-      required: true,
       index: true,
+      admin: { description: 'Ενήλικο μέλος (αφήστε κενό για εξαρτώμενο)' },
+    },
+    {
+      name: 'dependent',
+      type: 'relationship',
+      relationTo: 'dependents',
+      index: true,
+      admin: { description: 'Εξαρτώμενο μέλος (παιδί) — εναλλακτικά του member' },
     },
     {
       name: 'service',

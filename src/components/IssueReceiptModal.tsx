@@ -18,10 +18,19 @@ interface EnrollmentData {
     sessionFee?: number | null
     pricingType?: 'monthly' | 'per-session' | null
   }
-  member: {
+  member?: {
     globalDiscountType?: 'none' | 'percent' | 'fixed' | null
     globalDiscountValue?: number | null
-  }
+  } | null
+  dependent?: {
+    id: number
+    firstName?: string
+    lastName?: string
+    parent?: {
+      globalDiscountType?: 'none' | 'percent' | 'fixed' | null
+      globalDiscountValue?: number | null
+    } | null
+  } | null
 }
 
 interface LineState {
@@ -37,6 +46,7 @@ interface LineState {
   planType: 'monthly' | 'sessions'
   isComplete: boolean
   serviceTitle: string
+  dependentName?: string
 }
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
@@ -50,11 +60,12 @@ interface Props {
   memberId: string
   memberName: string
   tenantId: string
+  dependentIds?: string[]
   onClose: () => void
   onSuccess: () => void
 }
 
-export function IssueReceiptModal({ memberId, memberName, tenantId, onClose, onSuccess }: Props) {
+export function IssueReceiptModal({ memberId, memberName, tenantId, dependentIds = [], onClose, onSuccess }: Props) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -69,7 +80,7 @@ export function IssueReceiptModal({ memberId, memberName, tenantId, onClose, onS
     setLoading(true)
     setError('')
     try {
-      const [enrollRes, receiptRes] = await Promise.all([
+      const fetches: Promise<Response>[] = [
         fetch(
           `/api/enrollments?where[member][equals]=${memberId}&where[tenant][equals]=${tenantId}&depth=2&limit=50`,
           { credentials: 'include' },
@@ -78,15 +89,33 @@ export function IssueReceiptModal({ memberId, memberName, tenantId, onClose, onS
           `/api/receipts?where[member][equals]=${memberId}&limit=200&depth=1`,
           { credentials: 'include' },
         ),
-      ])
+        ...dependentIds.map((depId) =>
+          fetch(
+            `/api/enrollments?where[dependent][equals]=${depId}&where[tenant][equals]=${tenantId}&depth=2&limit=50`,
+            { credentials: 'include' },
+          ),
+        ),
+      ]
 
-      if (!enrollRes.ok) throw new Error('Αδυναμία φόρτωσης εγγραφών')
-      const enrollData = (await enrollRes.json()) as { docs: EnrollmentData[] }
-      const enrollments = enrollData.docs
+      const [enrollRes, receiptRes, ...depEnrollResponses] = await Promise.all(fetches)
+
+      if (!enrollRes!.ok) throw new Error('Αδυναμία φόρτωσης εγγραφών')
+      const enrollData = (await enrollRes!.json()) as { docs: EnrollmentData[] }
+      const ownEnrollments = enrollData.docs
+
+      const depEnrollments: EnrollmentData[] = []
+      for (const res of depEnrollResponses) {
+        if (res.ok) {
+          const data = (await res.json()) as { docs: EnrollmentData[] }
+          depEnrollments.push(...data.docs)
+        }
+      }
+
+      const enrollments = [...ownEnrollments, ...depEnrollments]
 
       // Collect prior invoiced units per enrollment from receipts
       const invoiced: Record<string, number> = {}
-      if (receiptRes.ok) {
+      if (receiptRes!.ok) {
         const receiptData = (await receiptRes.json()) as {
           docs: { lineItems?: { enrollment?: { id: number } | number | null; sessionsCount?: number | null }[] }[]
         }
@@ -121,7 +150,8 @@ export function IssueReceiptModal({ memberId, memberName, tenantId, onClose, onS
             ? (e.service.sessionFee ?? 0)
             : (e.service.fee ?? 0)
 
-        const { enrollmentDiscount, globalDiscount, finalRate } = computeRate(unitRate, e, e.member)
+        const memberDiscountSource = e.member ?? e.dependent?.parent ?? {}
+        const { enrollmentDiscount, globalDiscount, finalRate } = computeRate(unitRate, e, memberDiscountSource as { globalDiscountType?: string | null; globalDiscountValue?: number | null })
         const totalDiscountAmount = enrollmentDiscount + globalDiscount
         const discountFraction = unitRate > 0 ? totalDiscountAmount / unitRate : 0
 
@@ -142,6 +172,10 @@ export function IssueReceiptModal({ memberId, memberName, tenantId, onClose, onS
         const discountAmount = Math.round(baseAmount * discountFraction * 100) / 100
         const finalAmount = Math.max(0, Math.round((baseAmount - discountAmount) * 100) / 100)
 
+        const dependentName = e.dependent
+          ? `${e.dependent.firstName ?? ''} ${e.dependent.lastName ?? ''}`.trim()
+          : undefined
+
         states[eId] = {
           selected: !isComplete,
           description,
@@ -154,6 +188,7 @@ export function IssueReceiptModal({ memberId, memberName, tenantId, onClose, onS
           planType,
           isComplete,
           serviceTitle: e.service.title,
+          dependentName,
         }
       }
       setLineStates(states)
@@ -292,6 +327,9 @@ export function IssueReceiptModal({ memberId, memberName, tenantId, onClose, onS
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-slate-800 text-sm">
                             {s.serviceTitle}
+                            {s.dependentName && (
+                              <span className="ml-2 text-xs text-indigo-500">({s.dependentName})</span>
+                            )}
                             {s.isComplete && (
                               <span className="ml-2 text-xs text-slate-400">(Ολοκληρωμένο)</span>
                             )}

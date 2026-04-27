@@ -24,9 +24,11 @@ export async function POST(request: Request) {
 
   const tenantId =
     body.tenantId ??
-    (typeof (user as { tenant?: string | { id: string } }).tenant === 'object'
-      ? ((user as { tenant: { id: string } }).tenant.id)
-      : ((user as { tenant?: string }).tenant ?? ''))
+    String(
+      typeof (user as { tenant?: unknown }).tenant === 'object' && (user as { tenant: unknown }).tenant !== null
+        ? ((user as { tenant: { id: unknown } }).tenant.id)
+        : ((user as { tenant?: unknown }).tenant ?? ''),
+    )
 
   if (!tenantId) {
     return Response.json({ message: 'Tenant required' }, { status: 400 })

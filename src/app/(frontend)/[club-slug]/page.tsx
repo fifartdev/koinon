@@ -128,7 +128,7 @@ export default async function ClubLandingPage({ params }: Props) {
                     </div>
                     {service.fee != null && (
                       <span className="text-indigo-600 font-semibold text-sm whitespace-nowrap">
-                        {service.fee} / μήνα
+                        {service.fee}€ / μήνα
                       </span>
                     )}
                   </div>

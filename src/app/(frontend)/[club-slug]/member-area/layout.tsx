@@ -18,6 +18,7 @@ const NAV = [
   { href: '/schedule', label: 'Πρόγραμμα', icon: '📅' },
   { href: '/receipts', label: 'Αποδείξεις', icon: '🧾' },
   { href: '/notifications', label: 'Ειδοποιήσεις', icon: '🔔' },
+  { href: '/profile', label: 'Προφίλ', icon: '👤' },
 ]
 
 export default async function MemberAreaLayout({ children, params }: Props) {

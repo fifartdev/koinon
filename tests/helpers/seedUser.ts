@@ -23,7 +23,7 @@ export async function seedTestUser(): Promise<void> {
   })
 
   // Create fresh test user
-  await payload.create({
+  await (payload.create as (opts: { collection: string; data: unknown }) => Promise<unknown>)({
     collection: 'users',
     data: testUser,
   })

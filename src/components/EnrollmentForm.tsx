@@ -33,6 +33,7 @@ interface Props {
   slug: string
   services: ExtService[]
   enrollments: ExtEnrollment[]
+  dependentId?: string
 }
 
 interface ServiceState {
@@ -51,7 +52,7 @@ interface ServiceState {
   planOpen: boolean
 }
 
-export function EnrollmentForm({ memberId, memberName, tenantId, slug, services, enrollments }: Props) {
+export function EnrollmentForm({ memberId, memberName, tenantId, slug, services, enrollments, dependentId }: Props) {
   const router = useRouter()
 
   const initial: Record<string, ServiceState> = {}
@@ -124,7 +125,7 @@ export function EnrollmentForm({ memberId, memberName, tenantId, slug, services,
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify({
-              member: Number(memberId),
+              ...(dependentId ? { dependent: Number(dependentId) } : { member: Number(memberId) }),
               service: Number(svcId),
               tenant: Number(tenantId),
               paymentStatus: cur.paymentStatus,

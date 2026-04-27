@@ -47,6 +47,27 @@ export async function DELETE(request: Request) {
 
   try {
     // Remove related records first to avoid foreign key constraint violations
+
+    // Delete dependents' enrollments, then dependents themselves
+    const { docs: dependents } = await payload.find({
+      collection: 'dependents',
+      where: { parent: { equals: userId } },
+      limit: 1000,
+      overrideAccess: true,
+    })
+    for (const dep of dependents) {
+      const { docs: depEnrollments } = await payload.find({
+        collection: 'enrollments',
+        where: { dependent: { equals: String(dep.id) } },
+        limit: 1000,
+        overrideAccess: true,
+      })
+      for (const e of depEnrollments) {
+        await payload.delete({ collection: 'enrollments', id: String(e.id), overrideAccess: true })
+      }
+      await payload.delete({ collection: 'dependents', id: String(dep.id), overrideAccess: true })
+    }
+
     const { docs: enrollments } = await payload.find({
       collection: 'enrollments',
       where: { member: { equals: userId } },

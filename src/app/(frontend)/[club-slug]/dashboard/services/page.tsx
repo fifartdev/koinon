@@ -26,10 +26,11 @@ export default async function ServicesPage({ params }: Props) {
   const payload = await getPayload({ config })
   const { user } = await payload.auth({ headers })
 
-  const tenantId =
-    typeof (user as { tenant?: string | { id: string } })?.tenant === 'object'
-      ? ((user as { tenant: { id: string } }).tenant.id)
-      : ((user as { tenant?: string })?.tenant ?? '')
+  const tenantId = String(
+    typeof (user as { tenant?: unknown })?.tenant === 'object' && (user as { tenant: unknown }).tenant !== null
+      ? ((user as { tenant: { id: unknown } }).tenant.id)
+      : ((user as { tenant?: unknown })?.tenant ?? ''),
+  )
 
   const { docs: services } = await payload.find({
     collection: 'services',
