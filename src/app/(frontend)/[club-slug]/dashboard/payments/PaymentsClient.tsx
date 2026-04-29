@@ -126,7 +126,7 @@ export function PaymentsClient({ monthlyRows, sessionRows, overdueRows, selected
       )}
 
       {/* KPI summary */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <KpiCard label="Αναμένεται (μηνιαία)" value={kpis.expectedMonthly} color="slate" />
         <KpiCard label="Εισπράχθηκε" value={kpis.collectedMonthly} color="emerald" />
         <KpiCard label="Εκκρεμεί" value={kpis.outstandingMonthly} color={kpis.outstandingMonthly > 0 ? 'red' : 'emerald'} />
@@ -215,7 +215,38 @@ export function PaymentsClient({ monthlyRows, sessionRows, overdueRows, selected
             <span>Ανεξόφλητα Προηγούμενα Μήνες</span>
             <span className="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">{filteredOverdue.length}</span>
           </h3>
-          <div className="bg-white rounded-2xl border border-red-100 overflow-hidden">
+
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {filteredOverdue.map((r) => (
+              <div key={r.enrollmentId} className="bg-white rounded-2xl border border-red-100 p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-semibold text-slate-800">
+                      {r.memberName}
+                      {r.isDependent && <span className="ml-1 text-xs text-indigo-400 font-normal">(τέκνο)</span>}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-0.5">{r.serviceTitle}</p>
+                    <span className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full mt-1 inline-block">
+                      {r.overdueMonths} μήν. εκκρεμείς
+                    </span>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="font-bold text-red-600">{r.balance.toFixed(2)}€</p>
+                    <button
+                      onClick={() => openModal([...monthlyRows, ...sessionRows], r.parentMemberId, r.parentMemberName)}
+                      className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition mt-1 block"
+                    >
+                      + Απόδειξη
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block bg-white rounded-2xl border border-red-100 overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-red-50 bg-red-50/50">
@@ -231,9 +262,7 @@ export function PaymentsClient({ monthlyRows, sessionRows, overdueRows, selected
                   <tr key={r.enrollmentId} className="hover:bg-red-50/30">
                     <td className="px-5 py-3 font-medium text-slate-800">
                       {r.memberName}
-                      {r.isDependent && (
-                        <span className="ml-1.5 text-xs text-indigo-500">(τέκνο)</span>
-                      )}
+                      {r.isDependent && <span className="ml-1.5 text-xs text-indigo-500">(τέκνο)</span>}
                     </td>
                     <td className="px-5 py-3 text-slate-600">{r.serviceTitle}</td>
                     <td className="px-5 py-3">
@@ -278,7 +307,6 @@ function KpiCard({ label, value, color }: { label: string; value: number; color:
 
 function EnrollmentTable({
   rows,
-  allRows,
   onIssueReceipt,
 }: {
   rows: EnrollmentRow[]
@@ -286,60 +314,92 @@ function EnrollmentTable({
   onIssueReceipt: (r: EnrollmentRow) => void
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-slate-100 bg-slate-50">
-            <th className="text-left px-5 py-3 font-semibold text-slate-500">Μέλος</th>
-            <th className="text-left px-5 py-3 font-semibold text-slate-500">Υπηρεσία</th>
-            <th className="text-left px-5 py-3 font-semibold text-slate-500">Πλάνο</th>
-            <th className="text-right px-5 py-3 font-semibold text-slate-500">Αξία</th>
-            <th className="text-right px-5 py-3 font-semibold text-slate-500">Πληρωμένο</th>
-            <th className="text-right px-5 py-3 font-semibold text-slate-500">Υπόλοιπο</th>
-            <th className="px-5 py-3" />
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-50">
-          {rows.map((r) => {
-            const isComplete = r.planTotal > 0 && r.balance <= 0
-            return (
-              <tr key={r.enrollmentId} className="hover:bg-slate-50">
-                <td className="px-5 py-3 font-medium text-slate-800">
-                  {r.memberName}
-                  {r.isDependent && (
-                    <span className="ml-1.5 text-xs text-indigo-500">(τέκνο)</span>
-                  )}
-                  {r.overdueMonths > 0 && (
-                    <span className="ml-1.5 text-xs text-red-500 font-normal">⚠ {r.overdueMonths}μ. εκκρ.</span>
-                  )}
-                </td>
-                <td className="px-5 py-3 text-slate-600">{r.serviceTitle}</td>
-                <td className="px-5 py-3 text-slate-500 text-xs">
-                  {r.planType === 'sessions'
-                    ? `${r.unitsInvoiced}/${r.planTotal} συνεδρίες`
-                    : `${r.unitsInvoiced}/${r.planTotal} μήνες`}
-                </td>
-                <td className="px-5 py-3 text-right text-slate-600">{r.totalPlanValue.toFixed(2)}€</td>
-                <td className="px-5 py-3 text-right text-emerald-600 font-medium">{r.totalPaid.toFixed(2)}€</td>
-                <td className="px-5 py-3 text-right">
-                  <span className={`font-semibold ${isComplete ? 'text-emerald-600' : r.balance > 0 ? 'text-red-500' : 'text-slate-400'}`}>
-                    {isComplete ? '✓ Εξοφλήθη' : `${r.balance.toFixed(2)}€`}
-                  </span>
-                </td>
-                <td className="px-5 py-3 text-right">
-                  <button
-                    onClick={() => onIssueReceipt(r)}
-                    className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition whitespace-nowrap"
-                  >
-                    + Απόδειξη
-                  </button>
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
+    <>
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {rows.map((r) => {
+          const isComplete = r.planTotal > 0 && r.balance <= 0
+          return (
+            <div key={r.enrollmentId} className="bg-white rounded-2xl border border-slate-100 p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="font-semibold text-slate-800 truncate">
+                    {r.memberName}
+                    {r.isDependent && <span className="ml-1 text-xs text-indigo-400 font-normal">(τέκνο)</span>}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-0.5">{r.serviceTitle}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {r.planType === 'sessions'
+                      ? `${r.unitsInvoiced}/${r.planTotal} συνεδρίες`
+                      : `${r.unitsInvoiced}/${r.planTotal} μήνες`}
+                    {r.overdueMonths > 0 && <span className="ml-1 text-red-500">⚠ {r.overdueMonths}μ. εκκρ.</span>}
+                  </p>
+                </div>
+                <span className={`shrink-0 font-bold text-base ${isComplete ? 'text-emerald-600' : 'text-red-500'}`}>
+                  {isComplete ? '✓' : `${r.balance.toFixed(2)}€`}
+                </span>
+              </div>
+              <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-50 text-xs text-slate-400">
+                <span>Πληρωμένο: <span className="text-emerald-600 font-medium">{r.totalPaid.toFixed(2)}€</span> / {r.totalPlanValue.toFixed(2)}€</span>
+                <button
+                  onClick={() => onIssueReceipt(r)}
+                  className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition"
+                >
+                  + Απόδειξη
+                </button>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white rounded-2xl border border-slate-100 overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-slate-100 bg-slate-50">
+              <th className="text-left px-5 py-3 font-semibold text-slate-500">Μέλος</th>
+              <th className="text-left px-5 py-3 font-semibold text-slate-500">Υπηρεσία</th>
+              <th className="text-left px-5 py-3 font-semibold text-slate-500">Πλάνο</th>
+              <th className="text-right px-5 py-3 font-semibold text-slate-500">Αξία</th>
+              <th className="text-right px-5 py-3 font-semibold text-slate-500">Πληρωμένο</th>
+              <th className="text-right px-5 py-3 font-semibold text-slate-500">Υπόλοιπο</th>
+              <th className="px-5 py-3" />
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-50">
+            {rows.map((r) => {
+              const isComplete = r.planTotal > 0 && r.balance <= 0
+              return (
+                <tr key={r.enrollmentId} className="hover:bg-slate-50">
+                  <td className="px-5 py-3 font-medium text-slate-800">
+                    {r.memberName}
+                    {r.isDependent && <span className="ml-1.5 text-xs text-indigo-500">(τέκνο)</span>}
+                    {r.overdueMonths > 0 && <span className="ml-1.5 text-xs text-red-500 font-normal">⚠ {r.overdueMonths}μ. εκκρ.</span>}
+                  </td>
+                  <td className="px-5 py-3 text-slate-600">{r.serviceTitle}</td>
+                  <td className="px-5 py-3 text-slate-500 text-xs">
+                    {r.planType === 'sessions' ? `${r.unitsInvoiced}/${r.planTotal} συνεδρίες` : `${r.unitsInvoiced}/${r.planTotal} μήνες`}
+                  </td>
+                  <td className="px-5 py-3 text-right text-slate-600">{r.totalPlanValue.toFixed(2)}€</td>
+                  <td className="px-5 py-3 text-right text-emerald-600 font-medium">{r.totalPaid.toFixed(2)}€</td>
+                  <td className="px-5 py-3 text-right">
+                    <span className={`font-semibold ${isComplete ? 'text-emerald-600' : r.balance > 0 ? 'text-red-500' : 'text-slate-400'}`}>
+                      {isComplete ? '✓ Εξοφλήθη' : `${r.balance.toFixed(2)}€`}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3 text-right">
+                    <button onClick={() => onIssueReceipt(r)} className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition whitespace-nowrap">
+                      + Απόδειξη
+                    </button>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    </>
   )
 }
 
@@ -363,62 +423,119 @@ function MemberGroupTable({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-slate-100 bg-slate-50">
-            <th className="text-left px-5 py-3 font-semibold text-slate-500">Μέλος</th>
-            <th className="text-left px-5 py-3 font-semibold text-slate-500">Εγγραφές</th>
-            <th className="text-right px-5 py-3 font-semibold text-slate-500">Σύνολο Πλάνων</th>
-            <th className="text-right px-5 py-3 font-semibold text-slate-500">Πληρωμένο</th>
-            <th className="text-right px-5 py-3 font-semibold text-slate-500">Υπόλοιπο</th>
-            <th className="px-5 py-3" />
-          </tr>
-        </thead>
-        <tbody>
-          {groups.map((g) => {
-            const isOpen = expanded.has(g.memberId)
-            const isSettled = g.balance <= 0
-            const hasOverdue = g.rows.some((r) => r.overdueMonths > 0)
-            const hasChildren = g.rows.some((r) => r.isDependent)
-            return (
-              <React.Fragment key={g.memberId}>
-                <tr
-                  className="border-b border-slate-50 hover:bg-slate-50 cursor-pointer"
-                  onClick={() => toggle(g.memberId)}
+    <>
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {groups.map((g) => {
+          const isOpen = expanded.has(g.memberId)
+          const isSettled = g.balance <= 0
+          const hasOverdue = g.rows.some((r) => r.overdueMonths > 0)
+          const hasChildren = g.rows.some((r) => r.isDependent)
+          return (
+            <div key={g.memberId} className="bg-white rounded-2xl border border-slate-100 p-4">
+              <button
+                className="w-full text-left"
+                onClick={() => toggle(g.memberId)}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-slate-800 truncate">
+                      <span className="mr-1 text-slate-300 text-xs">{isOpen ? '▾' : '▸'}</span>
+                      {g.memberName}
+                      {hasChildren && <span className="ml-1 text-xs text-slate-400 font-normal">+τέκνα</span>}
+                      {hasOverdue && <span className="ml-1 text-red-500">⚠</span>}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-0.5">{g.rows.length} εγγραφές</p>
+                  </div>
+                  <span className={`shrink-0 font-bold text-base ${isSettled ? 'text-emerald-600' : 'text-red-500'}`}>
+                    {isSettled ? '✓' : `${g.balance.toFixed(2)}€`}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mt-2 text-xs text-slate-400">
+                  <span>Πληρωμένο: <span className="text-emerald-600 font-medium">{g.totalPaid.toFixed(2)}€</span> / {g.totalOwed.toFixed(2)}€</span>
+                </div>
+              </button>
+
+              {isOpen && (
+                <div className="mt-2 space-y-1 border-t border-slate-50 pt-2">
+                  {g.rows.map((r) => (
+                    <div key={r.enrollmentId} className="flex items-center justify-between pl-3 border-l-2 border-slate-100 py-1">
+                      <div>
+                        <p className="text-xs text-slate-600">
+                          {r.isDependent ? <span className="text-indigo-500">{r.memberName} (τέκνο)</span> : r.memberName}
+                        </p>
+                        <p className="text-xs text-slate-400">{r.serviceTitle}</p>
+                      </div>
+                      <span className={`text-xs font-semibold ${r.balance > 0 ? 'text-red-500' : 'text-emerald-600'}`}>
+                        {r.balance > 0 ? `${r.balance.toFixed(2)}€` : '✓'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-3 pt-2 border-t border-slate-50 text-right">
+                <button
+                  onClick={() => onIssueReceipt(allRows, g.memberId, g.memberName)}
+                  className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition"
                 >
-                  <td className="px-5 py-3 font-medium text-slate-800">
-                    <span className="mr-2 text-slate-300 text-xs">{isOpen ? '▾' : '▸'}</span>
-                    {g.memberName}
-                    {hasChildren && <span className="ml-1.5 text-xs text-slate-400">+τέκνα</span>}
-                    {hasOverdue && <span className="ml-1.5 text-xs text-red-500">⚠</span>}
-                  </td>
-                  <td className="px-5 py-3 text-slate-500 text-xs">{g.rows.length} εγγρ.</td>
-                  <td className="px-5 py-3 text-right text-slate-600">{g.totalOwed.toFixed(2)}€</td>
-                  <td className="px-5 py-3 text-right text-emerald-600 font-medium">{g.totalPaid.toFixed(2)}€</td>
-                  <td className="px-5 py-3 text-right">
-                    <span className={`font-semibold ${isSettled ? 'text-emerald-600' : 'text-red-500'}`}>
-                      {isSettled ? '✓ Εξοφλήθη' : `${g.balance.toFixed(2)}€`}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onClick={() => onIssueReceipt(allRows, g.memberId, g.memberName)}
-                      className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition whitespace-nowrap"
-                    >
-                      + Απόδειξη
-                    </button>
-                  </td>
-                </tr>
-                {isOpen &&
-                  g.rows.map((r) => (
+                  + Απόδειξη
+                </button>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white rounded-2xl border border-slate-100 overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-slate-100 bg-slate-50">
+              <th className="text-left px-5 py-3 font-semibold text-slate-500">Μέλος</th>
+              <th className="text-left px-5 py-3 font-semibold text-slate-500">Εγγραφές</th>
+              <th className="text-right px-5 py-3 font-semibold text-slate-500">Σύνολο Πλάνων</th>
+              <th className="text-right px-5 py-3 font-semibold text-slate-500">Πληρωμένο</th>
+              <th className="text-right px-5 py-3 font-semibold text-slate-500">Υπόλοιπο</th>
+              <th className="px-5 py-3" />
+            </tr>
+          </thead>
+          <tbody>
+            {groups.map((g) => {
+              const isOpen = expanded.has(g.memberId)
+              const isSettled = g.balance <= 0
+              const hasOverdue = g.rows.some((r) => r.overdueMonths > 0)
+              const hasChildren = g.rows.some((r) => r.isDependent)
+              return (
+                <React.Fragment key={g.memberId}>
+                  <tr className="border-b border-slate-50 hover:bg-slate-50 cursor-pointer" onClick={() => toggle(g.memberId)}>
+                    <td className="px-5 py-3 font-medium text-slate-800">
+                      <span className="mr-2 text-slate-300 text-xs">{isOpen ? '▾' : '▸'}</span>
+                      {g.memberName}
+                      {hasChildren && <span className="ml-1.5 text-xs text-slate-400">+τέκνα</span>}
+                      {hasOverdue && <span className="ml-1.5 text-xs text-red-500">⚠</span>}
+                    </td>
+                    <td className="px-5 py-3 text-slate-500 text-xs">{g.rows.length} εγγρ.</td>
+                    <td className="px-5 py-3 text-right text-slate-600">{g.totalOwed.toFixed(2)}€</td>
+                    <td className="px-5 py-3 text-right text-emerald-600 font-medium">{g.totalPaid.toFixed(2)}€</td>
+                    <td className="px-5 py-3 text-right">
+                      <span className={`font-semibold ${isSettled ? 'text-emerald-600' : 'text-red-500'}`}>
+                        {isSettled ? '✓ Εξοφλήθη' : `${g.balance.toFixed(2)}€`}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => onIssueReceipt(allRows, g.memberId, g.memberName)}
+                        className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition whitespace-nowrap"
+                      >
+                        + Απόδειξη
+                      </button>
+                    </td>
+                  </tr>
+                  {isOpen && g.rows.map((r) => (
                     <tr key={r.enrollmentId} className="border-b border-slate-50 bg-slate-50/40">
                       <td className="px-5 py-2 text-slate-600 pl-10 text-xs">
-                        {r.isDependent ? (
-                          <span className="text-indigo-500">↳ {r.memberName} (τέκνο)</span>
-                        ) : (
-                          <span className="text-slate-400">↳ {r.memberName}</span>
-                        )}
+                        {r.isDependent ? <span className="text-indigo-500">↳ {r.memberName} (τέκνο)</span> : <span className="text-slate-400">↳ {r.memberName}</span>}
                       </td>
                       <td className="px-5 py-2 text-slate-500 text-xs">{r.serviceTitle}</td>
                       <td className="px-5 py-2 text-right text-slate-500 text-xs">{r.totalPlanValue.toFixed(2)}€</td>
@@ -431,11 +548,12 @@ function MemberGroupTable({
                       <td />
                     </tr>
                   ))}
-              </React.Fragment>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
+                </React.Fragment>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    </>
   )
 }

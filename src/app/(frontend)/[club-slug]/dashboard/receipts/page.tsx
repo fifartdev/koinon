@@ -52,71 +52,104 @@ export default async function ReceiptsPage({ params }: Props) {
           Δεν έχουν εκδοθεί αποδείξεις ακόμα.
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50">
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Αρ. Απόδειξης</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Μέλος</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Ημερομηνία</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Τρόπος</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Υπηρεσίες</th>
-                <th className="text-right px-5 py-3 font-semibold text-slate-500">Σύνολο</th>
-                <th className="px-5 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {receipts.map((r) => {
-                const rAny = r as unknown as {
-                  id: number
-                  receiptNumber: string
-                  issuedAt?: string | null
-                  paymentMethod?: string | null
-                  totalAmount?: number | null
-                  member?: { id: number; firstName?: string; lastName?: string; email?: string } | null
-                  lineItems?: { description?: string | null }[]
-                }
-                const member = rAny.member
-                const memberName = member
-                  ? `${member.firstName ?? ''} ${member.lastName ?? ''}`.trim() || (member.email ?? '—')
-                  : '—'
-                const descriptions = (rAny.lineItems ?? [])
-                  .map((l) => l.description)
-                  .filter(Boolean)
-                  .join(', ')
-
-                return (
-                  <tr key={rAny.id} className="hover:bg-slate-50">
-                    <td className="px-5 py-3 font-mono text-indigo-600 font-semibold text-xs">
-                      {rAny.receiptNumber}
-                    </td>
-                    <td className="px-5 py-3 font-medium text-slate-800">{memberName}</td>
-                    <td className="px-5 py-3 text-slate-500">
-                      {rAny.issuedAt ? new Date(rAny.issuedAt).toLocaleDateString('el-GR') : '—'}
-                    </td>
-                    <td className="px-5 py-3 text-slate-500">
-                      {METHOD_LABELS[rAny.paymentMethod ?? ''] ?? rAny.paymentMethod ?? '—'}
-                    </td>
-                    <td className="px-5 py-3 text-slate-400 text-xs max-w-50 truncate">
-                      {descriptions || '—'}
-                    </td>
-                    <td className="px-5 py-3 text-right font-semibold text-slate-800">
-                      {(rAny.totalAmount ?? 0).toFixed(2)}€
-                    </td>
-                    <td className="px-5 py-3 text-right">
+        <>
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {receipts.map((r) => {
+              const rAny = r as unknown as {
+                id: number; receiptNumber: string; issuedAt?: string | null
+                paymentMethod?: string | null; totalAmount?: number | null
+                member?: { id: number; firstName?: string; lastName?: string; email?: string } | null
+                lineItems?: { description?: string | null }[]
+              }
+              const member = rAny.member
+              const memberName = member
+                ? `${member.firstName ?? ''} ${member.lastName ?? ''}`.trim() || (member.email ?? '—')
+                : '—'
+              const descriptions = (rAny.lineItems ?? []).map((l) => l.description).filter(Boolean).join(', ')
+              return (
+                <div key={rAny.id} className="bg-white rounded-2xl border border-slate-100 p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <span className="font-mono text-indigo-600 font-semibold text-xs">{rAny.receiptNumber}</span>
+                      <p className="font-medium text-slate-800 mt-0.5">{memberName}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {rAny.issuedAt ? new Date(rAny.issuedAt).toLocaleDateString('el-GR') : '—'}
+                        {' · '}
+                        {METHOD_LABELS[rAny.paymentMethod ?? ''] ?? rAny.paymentMethod ?? '—'}
+                      </p>
+                      {descriptions && (
+                        <p className="text-xs text-slate-400 mt-0.5 truncate">{descriptions}</p>
+                      )}
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="font-semibold text-slate-800">{(rAny.totalAmount ?? 0).toFixed(2)}€</p>
                       <Link
                         href={`/${slug}/receipt/${rAny.id}`}
                         className="text-xs text-indigo-500 hover:text-indigo-700 transition"
                       >
                         Εκτύπωση
                       </Link>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block bg-white rounded-2xl border border-slate-100 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50">
+                  <th className="text-left px-5 py-3 font-semibold text-slate-500">Αρ. Απόδειξης</th>
+                  <th className="text-left px-5 py-3 font-semibold text-slate-500">Μέλος</th>
+                  <th className="text-left px-5 py-3 font-semibold text-slate-500">Ημερομηνία</th>
+                  <th className="text-left px-5 py-3 font-semibold text-slate-500">Τρόπος</th>
+                  <th className="text-left px-5 py-3 font-semibold text-slate-500">Υπηρεσίες</th>
+                  <th className="text-right px-5 py-3 font-semibold text-slate-500">Σύνολο</th>
+                  <th className="px-5 py-3" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {receipts.map((r) => {
+                  const rAny = r as unknown as {
+                    id: number; receiptNumber: string; issuedAt?: string | null
+                    paymentMethod?: string | null; totalAmount?: number | null
+                    member?: { id: number; firstName?: string; lastName?: string; email?: string } | null
+                    lineItems?: { description?: string | null }[]
+                  }
+                  const member = rAny.member
+                  const memberName = member
+                    ? `${member.firstName ?? ''} ${member.lastName ?? ''}`.trim() || (member.email ?? '—')
+                    : '—'
+                  const descriptions = (rAny.lineItems ?? []).map((l) => l.description).filter(Boolean).join(', ')
+                  return (
+                    <tr key={rAny.id} className="hover:bg-slate-50">
+                      <td className="px-5 py-3 font-mono text-indigo-600 font-semibold text-xs">{rAny.receiptNumber}</td>
+                      <td className="px-5 py-3 font-medium text-slate-800">{memberName}</td>
+                      <td className="px-5 py-3 text-slate-500">
+                        {rAny.issuedAt ? new Date(rAny.issuedAt).toLocaleDateString('el-GR') : '—'}
+                      </td>
+                      <td className="px-5 py-3 text-slate-500">
+                        {METHOD_LABELS[rAny.paymentMethod ?? ''] ?? rAny.paymentMethod ?? '—'}
+                      </td>
+                      <td className="px-5 py-3 text-slate-400 text-xs max-w-50 truncate">{descriptions || '—'}</td>
+                      <td className="px-5 py-3 text-right font-semibold text-slate-800">
+                        {(rAny.totalAmount ?? 0).toFixed(2)}€
+                      </td>
+                      <td className="px-5 py-3 text-right">
+                        <Link href={`/${slug}/receipt/${rAny.id}`} className="text-xs text-indigo-500 hover:text-indigo-700 transition">
+                          Εκτύπωση
+                        </Link>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   )

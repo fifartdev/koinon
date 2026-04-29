@@ -100,109 +100,177 @@ export function MembersClient({ members, services, slug }: Props) {
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50">
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Όνομα</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Email</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Κατάσταση</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Εγγραφές</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-500">Ενέργειες</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {filtered.map((m) => (
-                <React.Fragment key={m.id}>
-                  {/* Adult member row */}
-                  <tr className="hover:bg-slate-50">
-                    <td className="px-5 py-3 font-medium text-slate-800">
-                      <Link
-                        href={`/${slug}/dashboard/members/${m.id}`}
-                        className="hover:text-indigo-600 transition"
-                      >
-                        {m.firstName} {m.lastName}
-                      </Link>
-                      {m.dependents.length > 0 && (
-                        <span className="ml-2 text-xs text-slate-400 font-normal">
-                          +{m.dependents.length} τέκν.
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-5 py-3 text-slate-500">{m.email}</td>
-                    <td className="px-5 py-3">
-                      {m.hasUnpaidBalance ? (
-                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
-                          Ανεξόφλητο
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                          Εξοφλημένο
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-5 py-3">
-                      <div className="flex items-center gap-3">
-                        <Link
-                          href={`/${slug}/dashboard/members/${m.id}/enrollments`}
-                          className="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition"
-                        >
-                          Εγγραφές
-                        </Link>
-                        <Link
-                          href={`/${slug}/dashboard/members/${m.id}/add-child`}
-                          className="text-xs font-medium text-slate-500 hover:text-slate-700 transition"
-                        >
-                          + Παιδί
-                        </Link>
-                      </div>
-                    </td>
-                    <td className="px-5 py-3">
-                      <MemberActions
-                        userId={m.id}
-                        memberName={`${m.firstName} ${m.lastName}`.trim() || m.email}
-                      />
-                    </td>
-                  </tr>
+        <>
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {filtered.map((m) => (
+              <div key={m.id} className="bg-white rounded-2xl border border-slate-100 p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <Link
+                      href={`/${slug}/dashboard/members/${m.id}`}
+                      className="font-semibold text-slate-800 hover:text-indigo-600 transition truncate block"
+                    >
+                      {m.firstName} {m.lastName}
+                    </Link>
+                    <p className="text-xs text-slate-400 truncate mt-0.5">{m.email}</p>
+                    {(m.mobile || m.landline) && (
+                      <p className="text-xs text-slate-400 mt-0.5">{m.mobile || m.landline}</p>
+                    )}
+                  </div>
+                  {m.hasUnpaidBalance ? (
+                    <span className="shrink-0 text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
+                      Ανεξόφλητο
+                    </span>
+                  ) : (
+                    <span className="shrink-0 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                      Εξοφλημένο
+                    </span>
+                  )}
+                </div>
 
-                  {/* Dependent rows — indented */}
-                  {m.dependents.map((dep) => (
-                    <tr key={`dep-${dep.id}`} className="bg-slate-50/60 hover:bg-slate-50">
-                      <td className="px-5 py-2 text-slate-600" colSpan={1}>
-                        <span className="pl-5 flex items-center gap-2 text-sm">
-                          <span className="text-slate-300">└</span>
-                          <span className="font-medium">
-                            {dep.firstName} {dep.lastName}
-                          </span>
-                          <span className="text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
-                            τέκνο
-                          </span>
+                {m.dependents.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {m.dependents.map((dep) => (
+                      <div key={dep.id} className="flex items-center justify-between pl-3 border-l-2 border-slate-100">
+                        <span className="text-xs text-slate-500">
+                          {dep.firstName} {dep.lastName}
+                          <span className="ml-1 text-slate-300">τέκνο</span>
                         </span>
-                      </td>
-                      <td className="px-5 py-2 text-slate-400 text-xs">
-                        {dep.dateOfBirth
-                          ? new Date(dep.dateOfBirth).toLocaleDateString('el-GR')
-                          : '—'}
-                      </td>
-                      <td className="px-5 py-2" />
-                      <td className="px-5 py-2">
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/${slug}/dashboard/dependents/${dep.id}/enrollments`}
+                            className="text-xs text-indigo-600 font-medium"
+                          >
+                            Εγγραφές
+                          </Link>
+                          <DeleteDependentButton depId={dep.id} depName={`${dep.firstName} ${dep.lastName}`} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex items-center gap-4 mt-3 pt-3 border-t border-slate-50">
+                  <Link
+                    href={`/${slug}/dashboard/members/${m.id}/enrollments`}
+                    className="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition"
+                  >
+                    Εγγραφές
+                  </Link>
+                  <Link
+                    href={`/${slug}/dashboard/members/${m.id}/add-child`}
+                    className="text-xs font-medium text-slate-500 hover:text-slate-700 transition"
+                  >
+                    + Παιδί
+                  </Link>
+                  <div className="ml-auto">
+                    <MemberActions
+                      userId={m.id}
+                      memberName={`${m.firstName} ${m.lastName}`.trim() || m.email}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block bg-white rounded-2xl border border-slate-100 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50">
+                  <th className="text-left px-5 py-3 font-semibold text-slate-500">Όνομα</th>
+                  <th className="text-left px-5 py-3 font-semibold text-slate-500">Email</th>
+                  <th className="text-left px-5 py-3 font-semibold text-slate-500">Κατάσταση</th>
+                  <th className="text-left px-5 py-3 font-semibold text-slate-500">Εγγραφές</th>
+                  <th className="text-left px-5 py-3 font-semibold text-slate-500">Ενέργειες</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {filtered.map((m) => (
+                  <React.Fragment key={m.id}>
+                    <tr className="hover:bg-slate-50">
+                      <td className="px-5 py-3 font-medium text-slate-800">
                         <Link
-                          href={`/${slug}/dashboard/dependents/${dep.id}/enrollments`}
-                          className="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition"
+                          href={`/${slug}/dashboard/members/${m.id}`}
+                          className="hover:text-indigo-600 transition"
                         >
-                          Εγγραφές
+                          {m.firstName} {m.lastName}
                         </Link>
+                        {m.dependents.length > 0 && (
+                          <span className="ml-2 text-xs text-slate-400 font-normal">
+                            +{m.dependents.length} τέκν.
+                          </span>
+                        )}
                       </td>
-                      <td className="px-5 py-2">
-                        <DeleteDependentButton depId={dep.id} depName={`${dep.firstName} ${dep.lastName}`} />
+                      <td className="px-5 py-3 text-slate-500">{m.email}</td>
+                      <td className="px-5 py-3">
+                        {m.hasUnpaidBalance ? (
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
+                            Ανεξόφλητο
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                            Εξοφλημένο
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-3">
+                          <Link
+                            href={`/${slug}/dashboard/members/${m.id}/enrollments`}
+                            className="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition"
+                          >
+                            Εγγραφές
+                          </Link>
+                          <Link
+                            href={`/${slug}/dashboard/members/${m.id}/add-child`}
+                            className="text-xs font-medium text-slate-500 hover:text-slate-700 transition"
+                          >
+                            + Παιδί
+                          </Link>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3">
+                        <MemberActions
+                          userId={m.id}
+                          memberName={`${m.firstName} ${m.lastName}`.trim() || m.email}
+                        />
                       </td>
                     </tr>
-                  ))}
-                </React.Fragment>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    {m.dependents.map((dep) => (
+                      <tr key={`dep-${dep.id}`} className="bg-slate-50/60 hover:bg-slate-50">
+                        <td className="px-5 py-2 text-slate-600">
+                          <span className="pl-5 flex items-center gap-2 text-sm">
+                            <span className="text-slate-300">└</span>
+                            <span className="font-medium">{dep.firstName} {dep.lastName}</span>
+                            <span className="text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">τέκνο</span>
+                          </span>
+                        </td>
+                        <td className="px-5 py-2 text-slate-400 text-xs">
+                          {dep.dateOfBirth ? new Date(dep.dateOfBirth).toLocaleDateString('el-GR') : '—'}
+                        </td>
+                        <td className="px-5 py-2" />
+                        <td className="px-5 py-2">
+                          <Link
+                            href={`/${slug}/dashboard/dependents/${dep.id}/enrollments`}
+                            className="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition"
+                          >
+                            Εγγραφές
+                          </Link>
+                        </td>
+                        <td className="px-5 py-2">
+                          <DeleteDependentButton depId={dep.id} depName={`${dep.firstName} ${dep.lastName}`} />
+                        </td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       {filtered.length > 0 && (
