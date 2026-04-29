@@ -1,5 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
@@ -56,7 +57,8 @@ export default async function ClubLandingPage({ params }: Props) {
       }),
     ])
 
-  const tenant = tenants[0] as Tenant
+  const tenant = tenants[0] as Tenant | undefined
+  if (!tenant) notFound()
 
   return (
     <div className="min-h-screen">
