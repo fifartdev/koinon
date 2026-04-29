@@ -57,6 +57,7 @@ export function PaymentsClient({ monthlyRows, sessionRows, overdueRows, selected
   const router = useRouter()
   const [modal, setModal] = useState<ModalState | null>(null)
   const [tab, setTab] = useState<Tab>('enrollment')
+  const [search, setSearch] = useState('')
 
   function changeMonth(delta: number) {
     const [y, m] = selectedMonth.split('-').map(Number) as [number, number]
@@ -68,7 +69,15 @@ export function PaymentsClient({ monthlyRows, sessionRows, overdueRows, selected
   const [y, m] = selectedMonth.split('-').map(Number) as [number, number]
   const monthLabel = `${MONTHS_GR[m - 1]} ${y}`
 
-  const allRows = [...monthlyRows, ...sessionRows]
+  const q = search.trim().toLowerCase()
+  const matchesSearch = (r: EnrollmentRow) =>
+    !q || r.memberName.toLowerCase().includes(q) || r.parentMemberName.toLowerCase().includes(q)
+
+  const filteredMonthly = monthlyRows.filter(matchesSearch)
+  const filteredSessions = sessionRows.filter(matchesSearch)
+  const filteredOverdue = overdueRows.filter(matchesSearch)
+
+  const allRows = [...filteredMonthly, ...filteredSessions]
 
   function openModal(rows: EnrollmentRow[], parentMemberId: string, parentMemberName: string) {
     const depIds = [...new Set(
@@ -79,7 +88,7 @@ export function PaymentsClient({ monthlyRows, sessionRows, overdueRows, selected
     setModal({ memberId: parentMemberId, memberName: parentMemberName, dependentIds: depIds })
   }
 
-  // ── Per-member grouping ────────────────────────────────────────────────
+  // ── Per-member grouping (uses filtered allRows) ────────────────────────
   const memberGroups = React.useMemo(() => {
     const map = new Map<string, { memberName: string; rows: EnrollmentRow[] }>()
     for (const r of allRows) {
@@ -124,12 +133,32 @@ export function PaymentsClient({ monthlyRows, sessionRows, overdueRows, selected
         <KpiCard label={`Επόμ. Μήνας`} value={kpis.nextMonthExpected} color="indigo" />
       </div>
 
-      {/* Month selector */}
-      <div className="flex items-center gap-3 mb-5">
-        <button onClick={() => changeMonth(-1)} className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 transition">‹</button>
-        <span className="font-semibold text-slate-700 min-w-40 text-center">{monthLabel}</span>
-        <button onClick={() => changeMonth(1)} className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 transition">›</button>
-        <span className="text-xs text-slate-400 ml-2">φίλτρο μηνιαίων πλάνων</span>
+      {/* Search + Month selector */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">
+        <div className="relative flex-1 max-w-xs">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+          <input
+            type="text"
+            placeholder="Αναζήτηση μέλους…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          <button onClick={() => changeMonth(-1)} className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 transition">‹</button>
+          <span className="font-semibold text-slate-700 min-w-40 text-center">{monthLabel}</span>
+          <button onClick={() => changeMonth(1)} className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 transition">›</button>
+          <span className="text-xs text-slate-400">φίλτρο μηνιαίων πλάνων</span>
+        </div>
       </div>
 
       {/* Tab toggle */}
@@ -149,40 +178,42 @@ export function PaymentsClient({ monthlyRows, sessionRows, overdueRows, selected
       </div>
 
       {allRows.length === 0 ? (
-        <div className="text-center py-16 text-slate-400">Δεν υπάρχουν εγγραφές για αυτή την περίοδο.</div>
+        <div className="text-center py-16 text-slate-400">
+          {q ? `Δεν βρέθηκαν μέλη για "${search}".` : 'Δεν υπάρχουν εγγραφές για αυτή την περίοδο.'}
+        </div>
       ) : tab === 'enrollment' ? (
         <div className="space-y-8">
-          {monthlyRows.length > 0 && (
+          {filteredMonthly.length > 0 && (
             <section>
               <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Μηνιαία Πλάνα</h3>
               <EnrollmentTable
-                rows={monthlyRows}
-                allRows={allRows}
-                onIssueReceipt={(r) => openModal(allRows, r.parentMemberId, r.parentMemberName)}
+                rows={filteredMonthly}
+                allRows={[...monthlyRows, ...sessionRows]}
+                onIssueReceipt={(r) => openModal([...monthlyRows, ...sessionRows], r.parentMemberId, r.parentMemberName)}
               />
             </section>
           )}
-          {sessionRows.length > 0 && (
+          {filteredSessions.length > 0 && (
             <section>
               <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Πλάνα Συνεδριών</h3>
               <EnrollmentTable
-                rows={sessionRows}
-                allRows={allRows}
-                onIssueReceipt={(r) => openModal(allRows, r.parentMemberId, r.parentMemberName)}
+                rows={filteredSessions}
+                allRows={[...monthlyRows, ...sessionRows]}
+                onIssueReceipt={(r) => openModal([...monthlyRows, ...sessionRows], r.parentMemberId, r.parentMemberName)}
               />
             </section>
           )}
         </div>
       ) : (
-        <MemberGroupTable groups={memberGroups} allRows={allRows} onIssueReceipt={openModal} />
+        <MemberGroupTable groups={memberGroups} allRows={[...monthlyRows, ...sessionRows]} onIssueReceipt={openModal} />
       )}
 
       {/* Overdue section */}
-      {overdueRows.length > 0 && (
+      {filteredOverdue.length > 0 && (
         <section className="mt-10">
           <h3 className="text-sm font-semibold text-red-500 uppercase tracking-wide mb-3 flex items-center gap-2">
             <span>Ανεξόφλητα Προηγούμενα Μήνες</span>
-            <span className="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">{overdueRows.length}</span>
+            <span className="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">{filteredOverdue.length}</span>
           </h3>
           <div className="bg-white rounded-2xl border border-red-100 overflow-hidden">
             <table className="w-full text-sm">
@@ -196,7 +227,7 @@ export function PaymentsClient({ monthlyRows, sessionRows, overdueRows, selected
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {overdueRows.map((r) => (
+                {filteredOverdue.map((r) => (
                   <tr key={r.enrollmentId} className="hover:bg-red-50/30">
                     <td className="px-5 py-3 font-medium text-slate-800">
                       {r.memberName}
@@ -213,7 +244,7 @@ export function PaymentsClient({ monthlyRows, sessionRows, overdueRows, selected
                     <td className="px-5 py-3 text-right font-semibold text-red-600">{r.balance.toFixed(2)}€</td>
                     <td className="px-5 py-3 text-right">
                       <button
-                        onClick={() => openModal(allRows, r.parentMemberId, r.parentMemberName)}
+                        onClick={() => openModal([...monthlyRows, ...sessionRows], r.parentMemberId, r.parentMemberName)}
                         className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition whitespace-nowrap"
                       >
                         + Απόδειξη
