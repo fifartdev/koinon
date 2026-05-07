@@ -32,7 +32,6 @@ function getTokenUser(request: NextRequest): JWTPayload | null {
 }
 
 const SKIP_PREFIXES = [
-  '/admin',
   '/api',
   '/_next',
   '/favicon',
@@ -52,6 +51,31 @@ export function proxy(request: NextRequest) {
   const lastSegment = pathname.split('/').pop() ?? ''
   if (lastSegment.includes('.')) return NextResponse.next()
 
+  // ── Payload admin (/admin) — master only ────────────────────────────────
+  if (pathname.startsWith('/admin')) {
+    const user = getTokenUser(request)
+    if (user && user.role !== 'master') {
+      // Authenticated non-master: superadmin → their panel; others → home
+      const dest = user.role === 'superadmin' ? '/superadmin' : '/'
+      return NextResponse.redirect(new URL(dest, request.url))
+    }
+    return NextResponse.next()
+  }
+
+  // ── Superadmin area (/superadmin) — superadmin only ─────────────────────
+  if (pathname.startsWith('/superadmin')) {
+    if (pathname === '/superadmin/login') return NextResponse.next()
+    const user = getTokenUser(request)
+    if (!user) {
+      return NextResponse.redirect(new URL('/superadmin/login', request.url))
+    }
+    if (user.role !== 'superadmin') {
+      const dest = user.role === 'master' ? '/admin' : '/'
+      return NextResponse.redirect(new URL(dest, request.url))
+    }
+    return NextResponse.next()
+  }
+
   const segments = pathname.split('/').filter(Boolean)
   if (segments.length < 2) return NextResponse.next()
 
@@ -65,13 +89,18 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/admin', request.url))
   }
 
+  // Superadmin users belong in their panel — redirect away from club frontend
+  if (user?.role === 'superadmin') {
+    return NextResponse.redirect(new URL('/superadmin', request.url))
+  }
+
   if (subPath === 'dashboard') {
     if (!user) {
       return NextResponse.redirect(
         new URL(`/${clubSlug}/login?redirect=dashboard`, request.url),
       )
     }
-    if (!['master', 'superadmin', 'club-admin'].includes(user.role ?? '')) {
+    if (!['club-admin'].includes(user.role ?? '')) {
       return NextResponse.redirect(
         new URL(`/${clubSlug}/member-area`, request.url),
       )
